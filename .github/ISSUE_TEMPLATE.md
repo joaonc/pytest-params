@@ -1,4 +1,4 @@
-* pytest params version:
+* pytest version:
 * Python version:
 * Operating System:
 
