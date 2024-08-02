@@ -169,7 +169,6 @@ test_collection = Collection('test')
 test_collection.add_task(test_unit, 'unit')
 
 build_collection = Collection('build')
-build_collection.add_task(build_clean, 'clean')
 build_collection.add_task(build_publish, 'publish')
 
 lint_collection = Collection('lint')
