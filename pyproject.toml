@@ -37,8 +37,8 @@ module = ['invoke']
 testpaths = ['tests']
 
 [build-system]
-requires = ['setuptools>=72.1.0']
-build-backend = 'setuptools.build_meta'
+requires = ['flit_core >=3.2,<4']
+build-backend = 'flit_core.buildapi'
 
 [project]
 name = 'pytest-params'
@@ -57,10 +57,6 @@ dev = [
 
 [project.urls]
 Home = 'https://github.com/joaonc/pytest_params'
-
-[build-system]
-requires = ['flit_core >=3.2,<4']
-build-backend = 'flit_core.buildapi'
 
 [tool.flit.module]
 name = 'pytest_params'

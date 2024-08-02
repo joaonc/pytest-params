@@ -1,3 +1,3 @@
 def params():
     """Temporary stub."""
-    pass
+    return 'test'
