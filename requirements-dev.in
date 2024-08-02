@@ -1,0 +1,18 @@
+-r requirements.txt
+
+# Dev tools
+invoke              # Tasks
+pip-tools           # Package management
+
+# Linting
+black               # Linter
+flake8              # Linter
+isort               # Linter
+mypy                # Code inspector
+
+# Test
+pytest              # Test framework
+
+# Publishing
+build               # Build package
+twine               # Upload to Pypi

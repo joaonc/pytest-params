@@ -1,1 +1,3 @@
-"""Main module."""
+def params():
+    """Temporary stub."""
+    pass
