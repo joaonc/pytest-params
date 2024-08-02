@@ -64,9 +64,3 @@ build-backend = 'flit_core.buildapi'
 
 [tool.flit.module]
 name = 'pytest_params'
-
-[tool.setuptools]
-package-dir = {'' = 'src'}
-
-[tool.setuptools.package-data]
-'*' = ['*.*']
