@@ -85,8 +85,6 @@ def build_publish(c, no_upload: bool = False):
         c.run(f'twine upload "{dist_dir}/*"')
 
 
-
-
 @task
 def lint_black(c, path='.'):
     c.run(f'black {path}')
@@ -160,7 +158,6 @@ def pip_upgrade(c, requirements):
     """
     for filename in _get_requirements_files(requirements, 'in'):
         c.run(f'pip-compile --upgrade {filename}')
-
 
 
 ns = Collection()  # Main namespace
