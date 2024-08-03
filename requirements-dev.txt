@@ -27,13 +27,19 @@ colorama==0.4.6
     #   click
     #   pytest
 docutils==0.21.2
-    # via readme-renderer
+    # via
+    #   flit
+    #   readme-renderer
 exceptiongroup==1.2.2
     # via
     #   -r requirements.txt
     #   pytest
 flake8==7.1.0
     # via -r requirements-dev.in
+flit==3.9.0
+    # via -r requirements-dev.in
+flit-core==3.9.0
+    # via flit
 idna==3.7
     # via requests
 importlib-metadata==8.2.0
@@ -114,6 +120,7 @@ readme-renderer==44.0
     # via twine
 requests==2.32.3
     # via
+    #   flit
     #   requests-toolbelt
     #   twine
 requests-toolbelt==1.0.0
@@ -130,6 +137,8 @@ tomli==2.0.1
     #   mypy
     #   pip-tools
     #   pytest
+tomli-w==1.0.0
+    # via flit
 twine==5.1.1
     # via -r requirements-dev.in
 typing-extensions==4.12.2

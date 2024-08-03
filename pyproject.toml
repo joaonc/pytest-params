@@ -49,12 +49,6 @@ authors = [{name = 'Joao Coelho'}]
 license = {text = 'MIT license'}
 dependencies = ['pytest>=7.0.0']
 
-[project.optional-dependencies]
-dev = [
-    'mypy',  # linting
-    'pytest',  # testing
-]
-
 [project.urls]
 Home = 'https://github.com/joaonc/pytest_params'
 

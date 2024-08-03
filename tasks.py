@@ -78,7 +78,7 @@ def build_publish(c, no_upload: bool = False):
     """
     dist_dir = BUILD_DIST_DIR / 'package'
     # Create distribution files (source and wheel)
-    c.run(f'flit ... FINISH')
+    c.run('flit ... FINISH')
     # Upload to pypi
     if not no_upload:
         c.run(f'twine upload "{dist_dir}/*"')

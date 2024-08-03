@@ -16,3 +16,4 @@ pytest              # Test framework
 # Publishing
 build               # Build package
 twine               # Upload to Pypi
+flit                # Upload to Pypi
