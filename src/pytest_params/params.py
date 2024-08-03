@@ -1,13 +1,17 @@
-from typing import Iterable, Sequence, Tuple
+from typing import Iterable, Sequence
 
 import pytest
 from _pytest.mark.structures import MarkDecorator, ParameterSet
 from _pytest.scope import _ScopeName
 
+# `name_values` should have type `Iterable[tuple[str, ...]]`, which states the tuple has a string
+# as first item and then an unknown number of items with any type. However, this declaration is not
+# processed by `mypy`, so simplified it.
+
 
 def params(
     argnames: str | Sequence[str],
-    name_values: Iterable[Tuple[str, ...]],
+    name_values: Iterable[tuple],  # Iterable[tuple[str, ...]]
     *,
     indirect: bool | Sequence[str] = False,
     scope: _ScopeName | None = None,
