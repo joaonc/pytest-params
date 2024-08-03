@@ -1,8 +1,22 @@
+from typing import Iterable, Sequence, Tuple
+
 import pytest
 from _pytest.mark.structures import MarkDecorator, ParameterSet
+from _pytest.scope import _ScopeName
 
 
-def params(*name_values) -> list[ParameterSet]:
+def params(
+    argnames: str | Sequence[str],
+    name_values: Iterable[Tuple[str, ...]],
+    *,
+    indirect: bool | Sequence[str] = False,
+    scope: _ScopeName | None = None,
+) -> MarkDecorator:
+    argvalues = params_values(*name_values)
+    return pytest.mark.parametrize(argnames, argvalues, indirect=indirect, scope=scope)
+
+
+def params_values(*name_values) -> list[ParameterSet]:
     if not name_values:
         raise ValueError('Parameter needs to be iterable (usually list of lists).')
     if any(not hasattr(x, '__iter__') or isinstance(x, str) for x in name_values):
