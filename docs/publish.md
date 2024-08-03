@@ -1,15 +1,29 @@
 # Publishing package
-For the publishing process, [flit](https://flit.pypa.io/en/stable/) is used to make it simpler.
+## Requirements
+* `flit`  
+  For the publishing process, [flit](https://flit.pypa.io/en/stable/) is used to make it simpler.
+* Pypi account and API token  
+  To publish to Pypi, an account is needed and an API token generated.
+* `.pypirc` file  
+  Create the file `.pypirc` in the home folder with the token:
+  ```
+  [pypi]
+    username = __token__
+    password = pypi-AhEIc...ktllA
+  ```
+  Note that using username/password in Pypi has been disabled. Need to use token.
+* GitHub CLI  
+  This project uses [GitHub CLI](https://cli.github.com/) ([docs](https://cli.github.com/manual/))
+  in the release process.
 
-To publish to Pypi, an account is needed and an API token generated.
+  You'll need to install and authenticate `gh` in order to perform the release tasks.
 
-Then create the file `.pypirc` in the home folder with the token:
-```
-[pypi]
-  username = __token__
-  password = pypi-AhEIc...ktllA
-```
-Note that using username/password in Pypi has been disabled. Need to use token.
+  To install, download the file in the link above and follow instructions.
+
+  Authenticate with this command:
+  ```
+  gh auth login
+  ```
 
 ## Workflow
 To further simplify, [invoke](https://www.pyinvoke.org/) tasks were added.  
