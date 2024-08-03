@@ -113,6 +113,35 @@ def _update_project_version(version: str):
             f.write(new_text)
 
 
+def _get_release_name_and_tag(version: str) -> tuple[str, str]:
+    """
+    Generate release name and tag based on the version.
+
+    :return: Tuple with release name (ex 'v1.2.3') and tag (ex '1.2.3').
+    """
+    return f'v{version}', version
+
+
+def _get_version_from_release_name(release_name: str) -> str:
+    if not release_name.startswith('v'):
+        raise Exit(f'Invalid release name: {release_name}')
+    return release_name[1:]
+
+
+def _get_latest_release() -> tuple[str, str]:
+    """
+    Retrieves the latest release from GitHub.
+
+    :return: Tuple with release name (ex 'v1.2.3') and tag (ex '1.2.3').
+    """
+    import json
+    import subprocess
+
+    release_info_json = subprocess.check_output(['gh', 'release', 'view', '--json', 'name,tagName'])
+    release_info = json.loads(release_info_json)
+    return release_info['name'], release_info['tagName']
+
+
 @task(
     help={
         'version': 'Version in semantic versioning format (ex 1.5.0). '
@@ -170,6 +199,48 @@ def build_publish(c, no_upload: bool = False):
     # Upload to pypi
     if not no_upload:
         c.run('flit publish')
+
+
+@task(
+    help={
+        'notes': 'Release notes.',
+        'notes_file': 'Read release notes from file. Ignores the `-notes` parameter.',
+    },
+)
+def build_release(c, notes: str = '', notes_file: str = '',):
+    """
+    Create a release and tag in GitHub from the current project version.
+    """
+    from semantic_version import Version
+
+    version = Version(_get_project_version())
+
+    # Check that there's no release with the current version
+    latest_release, latest_tag = _get_latest_release()
+    latest_version = Version(_get_version_from_release_name(latest_release))
+    if str(latest_version) != latest_tag:
+        raise Exit(
+            f'Invalid format in latest release or tag: Release: {latest_release}, Tag: {latest_tag}'
+        )
+
+    if latest_version >= version:
+        raise Exit(
+            f'Release/tag version being created ({version}) needs to be greater than the current '
+            f'latest release version ({latest_version}).'
+        )
+
+    # Create release
+    new_release, new_tag = _get_release_name_and_tag(str(version))
+    command = (
+        f'gh release create "{new_tag}" --title "{new_release}" --generate-notes'
+    )
+    if notes:
+        command += f' --notes "{notes}"'
+    if notes_file:
+        notes_file_path = Path(notes_file)
+        command += f' --notes-file "{notes_file_path.resolve(strict=True)}"'
+
+    c.run(command)
 
 
 @task
@@ -255,6 +326,7 @@ test_collection.add_task(test_unit, 'unit')
 build_collection = Collection('build')
 build_collection.add_task(build_version, 'version')
 build_collection.add_task(build_publish, 'publish')
+build_collection.add_task(build_release, 'release')
 
 lint_collection = Collection('lint')
 lint_collection.add_task(lint_all, 'all')

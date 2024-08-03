@@ -40,10 +40,14 @@ inv --list build
 2. Create and merge a PR with the new version.  
    Call it, for example, _"Preparing for v1.2.3 release"_.
 3. Build and publish
+   This command builds the package locally (in the `dist` folder) and publish (upload) to Pypi.
    ```
    inv build.publish
+   ```
+4. Create GitHub release and tag
+   ```
+   inv build.release
    ```
    This will:
      * Create a tag in GitHub with the version, ex `1.2.3`.
      * Create a release in GitHub with the version (named `v{version}`, ex `v1.2.3`).
-     * Publish (upload) to Pypi.
