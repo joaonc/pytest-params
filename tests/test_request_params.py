@@ -1,4 +1,4 @@
-from src.pytest_params import get_request_param
+from pytest_params import get_request_param
 
 
 def test_get_request_param():

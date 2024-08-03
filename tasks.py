@@ -207,7 +207,11 @@ def build_publish(c, no_upload: bool = False):
         'notes_file': 'Read release notes from file. Ignores the `-notes` parameter.',
     },
 )
-def build_release(c, notes: str = '', notes_file: str = '',):
+def build_release(
+    c,
+    notes: str = '',
+    notes_file: str = '',
+):
     """
     Create a release and tag in GitHub from the current project version.
     """
@@ -231,9 +235,7 @@ def build_release(c, notes: str = '', notes_file: str = '',):
 
     # Create release
     new_release, new_tag = _get_release_name_and_tag(str(version))
-    command = (
-        f'gh release create "{new_tag}" --title "{new_release}" --generate-notes'
-    )
+    command = f'gh release create "{new_tag}" --title "{new_release}" --generate-notes'
     if notes:
         command += f' --notes "{notes}"'
     if notes_file:
@@ -276,8 +278,11 @@ def lint_all(c):
 def test_unit(c):
     """
     Run unit tests.
+    Temporarily installs the `pytest-params` package.
     """
+    c.run('flit install')
     c.run('python -m pytest')
+    c.run('pip uninstall pytest-params -y')
 
 
 @task(help=REQUIREMENTS_TASK_HELP)
