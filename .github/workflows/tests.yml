@@ -24,7 +24,7 @@ jobs:
       - name: Install requirements
         run: |
           python -m pip install -U pip
-          python -m pip install pytest>=${{ matrix.pytest-version }},<$(( ${{ matrix.pytest-version }} + 1 ))
+          python -m pip install "pytest>=${{ matrix.pytest-version }},<$(( ${{ matrix.pytest-version }} + 1 ))"
           python -m pip install flit
       - name: Install package
         run: |
