@@ -24,8 +24,12 @@ jobs:
       - name: Install requirements
         run: |
           python -m pip install -U pip
-          python -m pip install pytest>=${{ matrix.python-version }},<$(( ${{ matrix.python-version }} + 1 ))
+          python -m pip install "pytest>=${{ matrix.pytest-version }},<$(( ${{ matrix.pytest-version }} + 1 ))"
+          python -m pip install flit
+      - name: Install package
+        run: |
+          flit install
       - name: Run tests
-        # Test folder(s) and other options configured in `pyproject.toml`
+        # Test folder(s) and other pytest options configured in `pyproject.toml`
         run: |
           python -m pytest .

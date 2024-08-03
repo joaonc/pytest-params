@@ -46,13 +46,11 @@ version = '0.0.1'
 description = 'Simplified pytest test case parameters.'
 readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
-license = {text = 'MIT license'}
+license = {file = 'LICENSE'}
 dependencies = ['pytest>=7.0.0']
-
-[project.optional-dependencies]
-dev = [
-    'mypy',  # linting
-    'pytest',  # testing
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Framework :: Pytest" ,
 ]
 
 [project.urls]

@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 from invoke import Collection, Exit, task
@@ -7,9 +8,8 @@ os.environ.setdefault('INVOKE_RUN_ECHO', '1')  # Show commands by default
 
 
 PROJECT_ROOT = Path(__file__).parent
-PROJECT_NAME = PROJECT_ROOT.name
+PROJECT_NAME = PROJECT_ROOT.name.replace('-', '_')  # 'pytest_params'
 SOURCE_DIR = PROJECT_ROOT / 'src' / PROJECT_NAME
-BUILD_DIST_DIR = PROJECT_ROOT / 'dist'
 
 # Requirements files
 REQUIREMENTS_MAIN = 'main'
@@ -29,6 +29,15 @@ REQUIREMENTS_TASK_HELP = {
     f'(ex. "dev"). For main file use "{REQUIREMENTS_MAIN}". Available requirements: '
     f'{", ".join(REQUIREMENTS_FILES)}.'
 }
+
+VERSION_FILES = [
+    PROJECT_ROOT / 'pyproject.toml',
+    SOURCE_DIR / '__init__.py',
+]
+"""
+Files that contain the package version.
+This version needs to be updated with each release.
+"""
 
 
 def _csstr_to_list(csstr: str) -> list[str]:
@@ -69,19 +78,171 @@ def _get_requirements_files(requirements: str | None, extension: str) -> list[st
     return filenames
 
 
+def _get_project_version() -> str:
+    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.MULTILINE)
+    versions = {}
+    for file in VERSION_FILES:
+        with open(file) as f:
+            text = f.read()
+        match = pattern.search(text)
+        if not match:
+            raise Exit(f'Could not find version in `{file.relative_to(PROJECT_ROOT)}`.')
+        versions[file] = match.group(1)
+
+    if len(set(versions.values())) != 1:
+        raise Exit(
+            'Version mismatch in files that contain versions.\n'
+            + (
+                '\n'.join(
+                    f'{file.relative_to(PROJECT_ROOT)}: {version}'
+                    for file, version in versions.items()
+                )
+            )
+        )
+
+    return list(versions.values())[0]
+
+
+def _update_project_version(version: str):
+    pattern = re.compile('''^([ _]*version[ _]*= *['"])(.*)(['"].*)$''', re.MULTILINE)
+    for file in VERSION_FILES:
+        with open(file) as f:
+            text = f.read()
+        new_text = pattern.sub(lambda match: f'{match.group(1)}{version}{match.group(3)}', text)
+        with open(file, 'w') as f:
+            f.write(new_text)
+
+
+def _get_release_name_and_tag(version: str) -> tuple[str, str]:
+    """
+    Generate release name and tag based on the version.
+
+    :return: Tuple with release name (ex 'v1.2.3') and tag (ex '1.2.3').
+    """
+    return f'v{version}', version
+
+
+def _get_version_from_release_name(release_name: str) -> str:
+    if not release_name.startswith('v'):
+        raise Exit(f'Invalid release name: {release_name}')
+    return release_name[1:]
+
+
+def _get_latest_release() -> tuple[str, str]:
+    """
+    Retrieves the latest release from GitHub.
+
+    :return: Tuple with release name (ex 'v1.2.3') and tag (ex '1.2.3').
+    """
+    import json
+    import subprocess
+
+    release_info_json = subprocess.check_output(['gh', 'release', 'view', '--json', 'name,tagName'])
+    release_info = json.loads(release_info_json)
+    return release_info['name'], release_info['tagName']
+
+
+@task(
+    help={
+        'version': 'Version in semantic versioning format (ex 1.5.0). '
+        'If `version` is set, then `bump` cannot be used.',
+        'bump': 'Portion of the version to increase, can be "major", "minor", or "patch".'
+        'If `bump` is set, then `version` cannot be used.',
+    },
+)
+def build_version(c, version: str = '', bump: str = ''):
+    """
+    Updates the files that contain the project version to the new version.
+    """
+    from semantic_version import Version
+
+    v1 = Version(_get_project_version())
+    if version and bump:
+        raise Exit('Either `version` or `bump` can be set, not both.')
+    if not (version or bump):
+        try:
+            bump = {'1': 'major', '2': 'minor', '3': 'patch'}[
+                input(
+                    f'Current version is `{v1}`, which portion to bump?'
+                    '\n1 - Major\n2 - Minor\n3 - Patch\n> '
+                )
+            ]
+        except KeyError:
+            raise Exit('Invalid choice')
+
+    if version:
+        v2 = Version(version)
+        if v2 <= v1:
+            raise Exit(f'New version `{v2}` needs to be greater than the existing version `{v1}`.')
+    else:
+        try:
+            v2 = getattr(v1, f'next_{bump.lower().strip()}')()
+        except AttributeError:
+            raise Exit('Invalid `bump` choice.')
+
+    _update_project_version(str(v2))
+    print(
+        f'New version is {v2}. Modified files have not been commited:\n'
+        + '\n'.join(f'{file.relative_to(PROJECT_ROOT)}' for file in VERSION_FILES)
+    )
+
+
 @task(
     help={'no_upload': 'Do not upload to Pypi.'},
 )
 def build_publish(c, no_upload: bool = False):
     """
-    Publish package to Pypi.
+    Build package and publish (upload) to Pypi.
     """
-    dist_dir = BUILD_DIST_DIR / 'package'
     # Create distribution files (source and wheel)
-    c.run(f'flit ... FINISH')
+    c.run('flit build')
     # Upload to pypi
     if not no_upload:
-        c.run(f'twine upload "{dist_dir}/*"')
+        c.run('flit publish')
+
+
+@task(
+    help={
+        'notes': 'Release notes.',
+        'notes_file': 'Read release notes from file. Ignores the `-notes` parameter.',
+    },
+)
+def build_release(
+    c,
+    notes: str = '',
+    notes_file: str = '',
+):
+    """
+    Create a release and tag in GitHub from the current project version.
+    """
+    from semantic_version import Version
+
+    version = Version(_get_project_version())
+
+    # Check that there's no release with the current version
+    latest_release, latest_tag = _get_latest_release()
+    latest_version = Version(_get_version_from_release_name(latest_release))
+    if str(latest_version) != latest_tag:
+        raise Exit(
+            f'Invalid format in latest release or tag: Release: {latest_release}, Tag: {latest_tag}'
+        )
+
+    if latest_version >= version:
+        raise Exit(
+            f'Release/tag version being created ({version}) needs to be greater than the current '
+            f'latest release version ({latest_version}).'
+        )
+
+    # Create release
+    new_release, new_tag = _get_release_name_and_tag(str(version))
+    command = f'gh release create "{new_tag}" --title "{new_release}" --generate-notes'
+    if notes:
+        command += f' --notes "{notes}"'
+    if notes_file:
+        notes_file_path = Path(notes_file)
+        command += f' --notes-file "{notes_file_path.resolve(strict=True)}"'
+
+    c.run(command)
 
 
 @task
@@ -117,8 +278,11 @@ def lint_all(c):
 def test_unit(c):
     """
     Run unit tests.
+    Temporarily installs the `pytest-params` package.
     """
+    c.run('flit install')
     c.run('python -m pytest')
+    c.run('pip uninstall pytest-params -y')
 
 
 @task(help=REQUIREMENTS_TASK_HELP)
@@ -165,7 +329,9 @@ test_collection = Collection('test')
 test_collection.add_task(test_unit, 'unit')
 
 build_collection = Collection('build')
+build_collection.add_task(build_version, 'version')
 build_collection.add_task(build_publish, 'publish')
+build_collection.add_task(build_release, 'release')
 
 lint_collection = Collection('lint')
 lint_collection.add_task(lint_all, 'all')
