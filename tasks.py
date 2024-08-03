@@ -1,5 +1,5 @@
-import re
 import os
+import re
 from pathlib import Path
 
 from invoke import Collection, Exit, task
@@ -38,6 +38,7 @@ VERSION_FILES = [
 Files that contain the package version.
 This version needs to be updated with each release.
 """
+
 
 def _csstr_to_list(csstr: str) -> list[str]:
     """
@@ -78,24 +79,32 @@ def _get_requirements_files(requirements: str | None, extension: str) -> list[st
 
 
 def _get_project_version() -> str:
-    pattern = re.compile('''.*version.*= *['"](.*)['"]''', re.DOTALL)
-    versions = []
+    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.MULTILINE)
+    versions = {}
     for file in VERSION_FILES:
         with open(file) as f:
             text = f.read()
         match = pattern.search(text)
         if not match:
-            raise Exit(f'Could not find version in `{file}`.')
-        versions.append(match.group(1))
+            raise Exit(f'Could not find version in `{file.relative_to(PROJECT_ROOT)}`.')
+        versions[file] = match.group(1)
 
-    if not all(x == versions[0] for x in versions[1:]):
-        raise Exit(f'Version mismatch in files that contain versions.')
+    if len(set(versions.values())) != 1:
+        raise Exit(
+            'Version mismatch in files that contain versions.\n'
+            + (
+                '\n'.join(
+                    f'{file.relative_to(PROJECT_ROOT)}: {version}'
+                    for file, version in versions.items()
+                )
+            )
+        )
 
-    return versions[0]
+    return list(versions.values())[0]
 
 
 def _update_project_version(version: str):
-    pattern = re.compile('''.*version.*= *['"](.*)['"]''', re.DOTALL)
+    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.DOTALL)
     for file in VERSION_FILES:
         with open(file) as f:
             text = f.read()
@@ -105,13 +114,14 @@ def _update_project_version(version: str):
 
 
 @task(
-    help={'version': 'Version in semantic versioning format (ex "1.5.0").'},
+    help={'version': 'Version in semantic versioning format (ex 1.5.0).'},
 )
 def build_version(c, version: str):
     """
     Updates the files that contain the project version to the new version.
     """
     from semantic_version import Version
+
     v1 = Version(_get_project_version())
     v2 = Version(version)
     if v2 <= v1:
