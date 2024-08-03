@@ -104,30 +104,58 @@ def _get_project_version() -> str:
 
 
 def _update_project_version(version: str):
-    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.DOTALL)
+    pattern = re.compile('''^([ _]*version[ _]*= *['"])(.*)(['"].*)$''', re.MULTILINE)
     for file in VERSION_FILES:
         with open(file) as f:
             text = f.read()
-        new_text = pattern.sub(version, text)
+        new_text = pattern.sub(lambda match: f'{match.group(1)}{version}{match.group(3)}', text)
         with open(file, 'w') as f:
             f.write(new_text)
 
 
 @task(
-    help={'version': 'Version in semantic versioning format (ex 1.5.0).'},
+    help={
+        'version': 'Version in semantic versioning format (ex 1.5.0). '
+        'If `version` is set, then `bump` cannot be used.',
+        'bump': 'Portion of the version to increase, can be "major", "minor", or "patch".'
+        'If `bump` is set, then `version` cannot be used.',
+    },
 )
-def build_version(c, version: str):
+def build_version(c, version: str = '', bump: str = ''):
     """
     Updates the files that contain the project version to the new version.
     """
     from semantic_version import Version
 
     v1 = Version(_get_project_version())
-    v2 = Version(version)
-    if v2 <= v1:
-        raise Exit(f'New version `{v2}` needs to be greater than the existing version `{v1}`.')
+    if version and bump:
+        raise Exit('Either `version` or `bump` can be set, not both.')
+    if not (version or bump):
+        try:
+            bump = {'1': 'major', '2': 'minor', '3': 'patch'}[
+                input(
+                    f'Current version is `{v1}`, which portion to bump?'
+                    '\n1 - Major\n2 - Minor\n3 - Patch\n> '
+                )
+            ]
+        except KeyError:
+            raise Exit('Invalid choice')
 
-    _update_project_version(version)
+    if version:
+        v2 = Version(version)
+        if v2 <= v1:
+            raise Exit(f'New version `{v2}` needs to be greater than the existing version `{v1}`.')
+    else:
+        try:
+            v2 = getattr(v1, f'next_{bump.lower().strip()}')()
+        except AttributeError:
+            raise Exit('Invalid `bump` choice.')
+
+    _update_project_version(str(v2))
+    print(
+        f'New version is {v2}. Modified files have not been commited:\n'
+        + '\n'.join(f'{file.relative_to(PROJECT_ROOT)}' for file in VERSION_FILES)
+    )
 
 
 @task(
@@ -135,7 +163,7 @@ def build_version(c, version: str):
 )
 def build_publish(c, no_upload: bool = False):
     """
-    Publish package to Pypi.
+    Build package and publish (upload) to Pypi.
     """
     # Create distribution files (source and wheel)
     c.run('flit build')
