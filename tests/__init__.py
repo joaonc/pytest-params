@@ -1,1 +1,1 @@
-"""Unit test package for pytest_params."""
+"""Unit tests for pytest_params."""

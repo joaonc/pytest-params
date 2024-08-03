@@ -1,3 +1,4 @@
+import re
 import os
 from pathlib import Path
 
@@ -7,9 +8,8 @@ os.environ.setdefault('INVOKE_RUN_ECHO', '1')  # Show commands by default
 
 
 PROJECT_ROOT = Path(__file__).parent
-PROJECT_NAME = PROJECT_ROOT.name
+PROJECT_NAME = PROJECT_ROOT.name.replace('-', '_')  # 'pytest_params'
 SOURCE_DIR = PROJECT_ROOT / 'src' / PROJECT_NAME
-BUILD_DIST_DIR = PROJECT_ROOT / 'dist'
 
 # Requirements files
 REQUIREMENTS_MAIN = 'main'
@@ -30,6 +30,14 @@ REQUIREMENTS_TASK_HELP = {
     f'{", ".join(REQUIREMENTS_FILES)}.'
 }
 
+VERSION_FILES = [
+    PROJECT_ROOT / 'pyproject.toml',
+    SOURCE_DIR / '__init__.py',
+]
+"""
+Files that contain the package version.
+This version needs to be updated with each release.
+"""
 
 def _csstr_to_list(csstr: str) -> list[str]:
     """
@@ -69,6 +77,49 @@ def _get_requirements_files(requirements: str | None, extension: str) -> list[st
     return filenames
 
 
+def _get_project_version() -> str:
+    pattern = re.compile('''.*version.*= *['"](.*)['"]''', re.DOTALL)
+    versions = []
+    for file in VERSION_FILES:
+        with open(file) as f:
+            text = f.read()
+        match = pattern.search(text)
+        if not match:
+            raise Exit(f'Could not find version in `{file}`.')
+        versions.append(match.group(1))
+
+    if not all(x == versions[0] for x in versions[1:]):
+        raise Exit(f'Version mismatch in files that contain versions.')
+
+    return versions[0]
+
+
+def _update_project_version(version: str):
+    pattern = re.compile('''.*version.*= *['"](.*)['"]''', re.DOTALL)
+    for file in VERSION_FILES:
+        with open(file) as f:
+            text = f.read()
+        new_text = pattern.sub(version, text)
+        with open(file, 'w') as f:
+            f.write(new_text)
+
+
+@task(
+    help={'version': 'Version in semantic versioning format (ex "1.5.0").'},
+)
+def build_version(c, version: str):
+    """
+    Updates the files that contain the project version to the new version.
+    """
+    from semantic_version import Version
+    v1 = Version(_get_project_version())
+    v2 = Version(version)
+    if v2 <= v1:
+        raise Exit(f'New version `{v2}` needs to be greater than the existing version `{v1}`.')
+
+    _update_project_version(version)
+
+
 @task(
     help={'no_upload': 'Do not upload to Pypi.'},
 )
@@ -76,12 +127,11 @@ def build_publish(c, no_upload: bool = False):
     """
     Publish package to Pypi.
     """
-    dist_dir = BUILD_DIST_DIR / 'package'
     # Create distribution files (source and wheel)
-    c.run('flit ... FINISH')
+    c.run('flit build')
     # Upload to pypi
     if not no_upload:
-        c.run(f'twine upload "{dist_dir}/*"')
+        c.run('flit publish')
 
 
 @task
@@ -165,6 +215,7 @@ test_collection = Collection('test')
 test_collection.add_task(test_unit, 'unit')
 
 build_collection = Collection('build')
+build_collection.add_task(build_version, 'version')
 build_collection.add_task(build_publish, 'publish')
 
 lint_collection = Collection('lint')
