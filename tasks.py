@@ -79,7 +79,7 @@ def _get_requirements_files(requirements: str | None, extension: str) -> list[st
 
 
 def _get_project_version() -> str:
-    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.MULTILINE)
+    pattern = re.compile('''^[ _]*version[ _]*[:=] *['"](.*)['"]''', re.MULTILINE)
     versions = {}
     for file in VERSION_FILES:
         with open(file) as f:
@@ -104,7 +104,7 @@ def _get_project_version() -> str:
 
 
 def _update_project_version(version: str):
-    pattern = re.compile('''^([ _]*version[ _]*= *['"])(.*)(['"].*)$''', re.MULTILINE)
+    pattern = re.compile('''^([ _]*version[ _]*[:=] *['"])(.*)(['"].*)$''', re.MULTILINE)
     for file in VERSION_FILES:
         with open(file) as f:
             text = f.read()
@@ -204,7 +204,7 @@ def build_publish(c, no_upload: bool = False):
 @task(
     help={
         'notes': 'Release notes.',
-        'notes_file': 'Read release notes from file. Ignores the `-notes` parameter.',
+        'notes_file': 'Read release notes from file. Ignores the `--notes` parameter.',
     },
 )
 def build_release(

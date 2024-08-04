@@ -3,11 +3,11 @@ line-length = 100
 target-version = ['py310']
 skip-string-normalization = true
 exclude='''
-/(
+(
     src/show_dialog/ui/forms
   | \.venv.*
   | \venv.*
-)/
+)
 '''
 
 [tool.isort]
