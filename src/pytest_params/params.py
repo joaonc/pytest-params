@@ -1,4 +1,4 @@
-from typing import Iterable, Sequence, Literal, Type
+from typing import Iterable, Literal, Sequence, Type
 
 import pytest
 from _pytest.mark.structures import MarkDecorator, ParameterSet
@@ -7,10 +7,11 @@ from _pytest.mark.structures import MarkDecorator, ParameterSet
 # Remove this code block when support for pytest 7 is removed.
 # `_ScopeName` import fails at runtime on pytest 7.
 from packaging import version
+
 if version.parse(pytest.__version__) >= version.parse('8.0.0'):
     from _pytest.scope import _ScopeName
 else:
-    _ScopeName: Type[str] = Literal['session', 'package', 'module', 'class', 'function']
+    _ScopeName: Type[str] = Literal['session', 'package', 'module', 'class', 'function']  # type: ignore # noqa
 # isort: on
 
 # `name_values` should have type `Iterable[tuple[str, ...]]`, which states the tuple has a string
