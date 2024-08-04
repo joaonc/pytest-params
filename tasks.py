@@ -168,7 +168,7 @@ def build_version(c, version: str = '', bump: str = ''):
                 )
             ]
         except KeyError:
-            raise Exit('Invalid choice')
+            raise Exit('Invalid choice.')
 
     if version:
         v2 = Version(version)
@@ -215,7 +215,7 @@ def build_release(
     """
     Create a release and tag in GitHub from the current project version.
     """
-    from semantic_version import Version
+    from packaging.version import Version
 
     version = Version(_get_project_version())
 
@@ -232,6 +232,12 @@ def build_release(
             f'Release/tag version being created ({version}) needs to be greater than the current '
             f'latest release version ({latest_version}).'
         )
+
+    if not notes and not notes_file:
+        response = input('No release notes or notes file specified, continue? [Y/n]')
+        response = response.strip().lower() or 'y'
+        if response not in ['yes', 'y']:
+            raise Exit('No release notes specified.')
 
     # Create release
     new_release, new_tag = _get_release_name_and_tag(str(version))
