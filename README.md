@@ -4,6 +4,23 @@
 
 Simplified pytest test case parameters.
 
+----
+
+## Installation
+
+```
+$ pip install pytest-params
+```
+
+## Examples
+pytest native:
+```python
+@pytest.mark.parametrize('a', [1, 2, 3])
+def test_foo(a):
+    ...
+
+```
+
 ## Features
 
 **TODO**

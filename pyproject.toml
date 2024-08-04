@@ -54,7 +54,7 @@ classifiers = [
 ]
 
 [project.urls]
-Home = 'https://github.com/joaonc/pytest_params'
+Home = 'https://github.com/joaonc/pytest-params'
 
 [tool.flit.module]
 name = 'pytest_params'

@@ -69,3 +69,5 @@ ENV/
 .vscode/
 .idea/
 
+# Misc
+release-notes.md
