@@ -198,7 +198,12 @@ def build_publish(c, no_upload: bool = False):
     c.run('flit build')
     # Upload to pypi
     if not no_upload:
-        c.run('flit publish')
+        version = _get_project_version()
+        response = input(f'Publishing version {version} to Pypi. Press Y to confirm.')
+        if response.lower().strip() == 'y':
+            c.run('flit publish')
+        else:
+            print('Package not published to Pypi.')
 
 
 @task(
@@ -248,7 +253,12 @@ def build_release(
         notes_file_path = Path(notes_file)
         command += f' --notes-file "{notes_file_path.resolve(strict=True)}"'
 
-    c.run(command)
+    response = input(f'Creating GitHub release `{new_release}`. Press Y to confirm.')
+    if response.lower().strip() == 'y':
+        c.run(command)
+        print('GitHub release created. Upload artifacts with `build.upload`.')
+    else:
+        print('GitHub release not created.')
 
 
 @task
