@@ -24,6 +24,16 @@ When creating pytest fixtures that are to be called indirectly (with `indirect=T
 function facilitates extracting the parameters used in the request, especially when there are
 multiple parameters.
 
+# TOC
+1. [Installation](#installation)
+2. [Examples](#examples)
+   1. [`@params`](#params-1)
+      1. [pytest native, no `id`.](#pytest-native-no-id)
+      2. [pytest native, with `id`](#pytest-native-with-id)
+      3. [Using `params`](#using-params)
+   2. [`get_request_param`](#get_request_param-1)
+3. [Similar projects](#similar-projects)
+
 ## Installation
 
 ```
@@ -36,7 +46,7 @@ under `tests`.
 
 ### `@params`
 
-#### pytest native, no `id`.
+#### pytest native, no `id`
 This is the most common and simple usage.  
 Note how in the results report the values are displayed but there's no context provided.  
 Also (not in this example), sometimes the parameters can't be displayed correctly and what shows
@@ -57,7 +67,7 @@ test_pytest_params.py::test_foo[0-0] PASSED                              [100%]
 ============================== 3 passed in 0.02s ==============================
 ```
 
-#### pytest native, with `id`.
+#### pytest native, with `id`
 Context provided in each set of parameters. Much nicer in the results report.  
 However, not straightforward to see which `id` corresponds to which set of parameters.
 ```python
@@ -128,7 +138,8 @@ test_pytest_params.py::test_foo[Inverted (a<b)] PASSED                   [100%]
 
 ### `get_request_param`
 
-This function helps in cases where a fixture requires multiple arguments.
+This function helps when a fixture requires multiple arguments.  
+When a fixture only requires one parameter, `request.param` can be used.
 
 The example below shows the `rectangle` fixture using `get_request_param()` and the test cases
 using that fixture passing the `w` and `h` arguments in the form of a dictionary.
