@@ -222,9 +222,14 @@ def build_release(
     """
     from packaging.version import Version
 
-    version = Version(_get_project_version())
+    if not notes and not notes_file:
+        response = input('No release notes or notes file specified, continue? [Y/n]')
+        response = response.strip().lower() or 'y'
+        if response not in ['yes', 'y']:
+            raise Exit('No release notes specified.')
 
     # Check that there's no release with the current version
+    version = Version(_get_project_version())
     latest_release, latest_tag = _get_latest_release()
     latest_version = Version(_get_version_from_release_name(latest_release))
     if str(latest_version) != latest_tag:
@@ -237,12 +242,6 @@ def build_release(
             f'Release/tag version being created ({version}) needs to be greater than the current '
             f'latest release version ({latest_version}).'
         )
-
-    if not notes and not notes_file:
-        response = input('No release notes or notes file specified, continue? [Y/n]')
-        response = response.strip().lower() or 'y'
-        if response not in ['yes', 'y']:
-            raise Exit('No release notes specified.')
 
     # Create release
     new_release, new_tag = _get_release_name_and_tag(str(version))
