@@ -9,6 +9,14 @@ Simplified pytest test case parameters.
 There are two main features in this package: the `@params` decorator and the `get_request_param`
 function.
 
+Both help with passing as much logic as possible to parameters and fixtures, so test cases can be
+declarative, ie, the business logic and initializations happen outside the test case and the test
+focuses on the thing that it's supposed to test.  
+This helps with:
+* DRYness.
+* More easily understand the test case.
+* Add/remove test case variants, with different parameters.
+
 Note that this package is not a pytest plugin.
 
 ### `@params`
@@ -28,7 +36,7 @@ multiple parameters.
 1. [Installation](#installation)
 2. [Examples](#examples)
    1. [`@params`](#params-1)
-      1. [pytest native, no `id`.](#pytest-native-no-id)
+      1. [pytest native, no `id`](#pytest-native-no-id)
       2. [pytest native, with `id`](#pytest-native-with-id)
       3. [Using `params`](#using-params)
    2. [`get_request_param`](#get_request_param-1)
