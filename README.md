@@ -1,6 +1,6 @@
 # pytest-params
 
-[![image](https://img.shields.io/pypi/v/pytest_params.svg)](https://pypi.python.org/pypi/pytest_params)
+[![image](https://img.shields.io/pypi/v/pytest-params.svg)](https://pypi.python.org/pypi/pytest-params)
 
 Simplified pytest test case parameters.
 
