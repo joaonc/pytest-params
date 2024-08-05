@@ -1,9 +1,11 @@
 # Publishing package
 ## Requirements
 * `flit`  
-  For the publishing process, [flit](https://flit.pypa.io/en/stable/) is used to make it simpler.
+  For the publishing process, [flit](https://flit.pypa.io/en/stable/) is used to make it simpler.  
+  Included in `requirements-dev.txt`.
 * Pypi account and API token  
-  To publish to Pypi, an account is needed and an API token generated.
+  To publish to Pypi, an account is needed and an API token generated.  
+  Go to [https://pypi.org](https://pypi.org/) and follow instructions.
 * `.pypirc` file  
   Create the file `.pypirc` in the home folder with the token:
   ```
@@ -11,7 +13,7 @@
     username = __token__
     password = pypi-AhEIc...ktllA
   ```
-  Note that using username/password in Pypi has been disabled. Need to use token.
+  Note that using username/password has been disabled in Pypi. Need to use token.
 * GitHub CLI  
   This project uses [GitHub CLI](https://cli.github.com/) ([docs](https://cli.github.com/manual/))
   in the release process.
@@ -44,6 +46,7 @@ inv --list build
    ```
    inv build.publish
    ```
+   To only build the package without uploading to Pypi, use the `--no-upload` option.
 4. Create GitHub release and tag.
    ```
    inv build.release

@@ -30,6 +30,8 @@ REQUIREMENTS_TASK_HELP = {
     f'{", ".join(REQUIREMENTS_FILES)}.'
 }
 
+BUILD_DIST_DIR = PROJECT_ROOT / 'dist'
+
 VERSION_FILES = [
     PROJECT_ROOT / 'pyproject.toml',
     SOURCE_DIR / '__init__.py',
@@ -187,7 +189,18 @@ def build_version(c, version: str = '', bump: str = ''):
     )
 
 
+@task
+def build_clean(c):
+    """
+    Delete files created from previous builds.
+    """
+    import shutil
+
+    shutil.rmtree(BUILD_DIST_DIR, ignore_errors=True)
+
+
 @task(
+    build_clean,
     help={'no_upload': 'Do not upload to Pypi.'},
 )
 def build_publish(c, no_upload: bool = False):
@@ -196,6 +209,7 @@ def build_publish(c, no_upload: bool = False):
     """
     # Create distribution files (source and wheel)
     c.run('flit build')
+
     # Upload to pypi
     if not no_upload:
         version = _get_project_version()
@@ -345,6 +359,7 @@ test_collection.add_task(test_unit, 'unit')
 
 build_collection = Collection('build')
 build_collection.add_task(build_version, 'version')
+build_collection.add_task(build_clean, 'clean')
 build_collection.add_task(build_publish, 'publish')
 build_collection.add_task(build_release, 'release')
 
