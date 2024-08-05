@@ -36,3 +36,16 @@ code and debug `tasks.py` as any other Python file.
 ![PyCharm tasks run config](images/pycharm_tasks_run_config.png)
 
 Replace script path to have the project's virtual environment.
+
+## Tests
+[pytest](https://docs.pytest.org/en/stable/) is used to run the tests.
+
+Given that we're testing a fixture for pytest tests, some of the tests (modules ending with
+`_output`) are done by running the tests in memory and examining the results report.  
+That is done using [pytester](https://docs.pytest.org/en/stable/reference/reference.html#pytester).
+See test cases implementation on how `pytester` is used and the report output analyzed.
+
+To run tests:
+```
+inv test.unit
+```

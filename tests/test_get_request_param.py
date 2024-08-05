@@ -2,7 +2,7 @@ import pytest
 
 from pytest_params import get_request_param
 
-DEFAULT_VALUE = 999
+DEFAULT_VALUE = 'foobar'
 
 
 @pytest.fixture
