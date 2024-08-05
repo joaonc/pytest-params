@@ -35,8 +35,7 @@ $ pip install pytest-params
 Test case with a marker (`pri1`), `id` on each test case and one of the parameters needs to be
 skipped.
 
-pytest native, no `id`.
-
+#### pytest native, no `id`.
 This is the most simple and common usage.  
 Note how in the results report the values are displayed but there's no context provided. Also (not
 in this example), sometimes the parameters can't be displayed correctly and what shows up in the
@@ -57,8 +56,7 @@ test_pytest_params.py::test_foo[0-0] PASSED                              [100%]
 ============================== 3 passed in 0.02s ==============================
 ```
 
-pytest native, with `id`.
-
+#### pytest native, with `id`.
 Context provided in each set of parameters. Much nicer in the results report.  
 However, not straightforward to see which `id` corresponds to which set of parameters.
 ```python
@@ -81,7 +79,20 @@ test_pytest_params.py::test_foo[Both 0] PASSED                           [100%]
 ============================== 3 passed in 0.03s ==============================
 ```
 
-Using `params`
+#### Using `params`
+Compared to the examples above that use pytest's `@pytest.mark.parametrize`:
+* Easier to see which description matches to which parameters, given they're all together.
+* Ability to have markers in individual sets of parameters.
+  Using pytest's native functionality, this is done by creating instances of `pytest.param` and
+  use that as parameters, which is more convoluted and verbose, making it less readable and overall
+  less used.  
+
+  Note that by having these markers, the test cases behave as when `@pytest.mark` is applied to the
+  test function without parameters. For example if you wanted to run only `pri1` tests:
+  ```
+  pytest -m pri1
+  ```
+  This would only execute the parameter set `'Inverted (a<b)'`.
 ```python
 @params(
     'a, b',
@@ -104,6 +115,16 @@ test_pytest_params.py::test_foo[Both 0] SKIPPED (BUG-123)                [100%]
 Skipped: BUG-123
 
 ================== 2 passed, 1 skipped, 2 warnings in 0.03s ===================
+```
+When running only the `pri1` tests with `-m pr1` parameter.  
+Note how only the `'Inverted (a<b)'` variant ran, which contains the `pri1` marker.
+```
+============================= test session starts =============================
+collecting ... collected 3 items / 2 deselected / 1 selected
+
+test_pytest_params.py::test_foo[Inverted (a<b)] PASSED                   [100%]
+
+================= 1 passed, 2 deselected, 2 warnings in 0.02s =================
 ```
 
 ### `get_request_param`
