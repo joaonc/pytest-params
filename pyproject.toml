@@ -43,7 +43,7 @@ build-backend = 'flit_core.buildapi'
 
 [project]
 name = 'pytest-params'
-version = '0.1.0'
+version = '0.2.0'
 description = 'Simplified pytest test case parameters.'
 readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
