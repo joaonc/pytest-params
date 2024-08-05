@@ -30,6 +30,8 @@ REQUIREMENTS_TASK_HELP = {
     f'{", ".join(REQUIREMENTS_FILES)}.'
 }
 
+BUILD_DIST_DIR = PROJECT_ROOT / 'dist'
+
 VERSION_FILES = [
     PROJECT_ROOT / 'pyproject.toml',
     SOURCE_DIR / '__init__.py',
@@ -79,7 +81,7 @@ def _get_requirements_files(requirements: str | None, extension: str) -> list[st
 
 
 def _get_project_version() -> str:
-    pattern = re.compile('''^[ _]*version[ _]*= *['"](.*)['"]''', re.MULTILINE)
+    pattern = re.compile('''^[ _]*version[ _]*[:=] *['"](.*)['"]''', re.MULTILINE)
     versions = {}
     for file in VERSION_FILES:
         with open(file) as f:
@@ -104,7 +106,7 @@ def _get_project_version() -> str:
 
 
 def _update_project_version(version: str):
-    pattern = re.compile('''^([ _]*version[ _]*= *['"])(.*)(['"].*)$''', re.MULTILINE)
+    pattern = re.compile('''^([ _]*version[ _]*[:=] *['"])(.*)(['"].*)$''', re.MULTILINE)
     for file in VERSION_FILES:
         with open(file) as f:
             text = f.read()
@@ -168,7 +170,7 @@ def build_version(c, version: str = '', bump: str = ''):
                 )
             ]
         except KeyError:
-            raise Exit('Invalid choice')
+            raise Exit('Invalid choice.')
 
     if version:
         v2 = Version(version)
@@ -187,7 +189,18 @@ def build_version(c, version: str = '', bump: str = ''):
     )
 
 
+@task
+def build_clean(c):
+    """
+    Delete files created from previous builds.
+    """
+    import shutil
+
+    shutil.rmtree(BUILD_DIST_DIR, ignore_errors=True)
+
+
 @task(
+    build_clean,
     help={'no_upload': 'Do not upload to Pypi.'},
 )
 def build_publish(c, no_upload: bool = False):
@@ -196,15 +209,21 @@ def build_publish(c, no_upload: bool = False):
     """
     # Create distribution files (source and wheel)
     c.run('flit build')
+
     # Upload to pypi
     if not no_upload:
-        c.run('flit publish')
+        version = _get_project_version()
+        response = input(f'Publishing version {version} to Pypi. Press Y to confirm. ')
+        if response.lower().strip() == 'y':
+            c.run('flit publish')
+        else:
+            print('Package not published to Pypi.')
 
 
 @task(
     help={
         'notes': 'Release notes.',
-        'notes_file': 'Read release notes from file. Ignores the `-notes` parameter.',
+        'notes_file': 'Read release notes from file. Ignores the `--notes` parameter.',
     },
 )
 def build_release(
@@ -215,11 +234,16 @@ def build_release(
     """
     Create a release and tag in GitHub from the current project version.
     """
-    from semantic_version import Version
+    from packaging.version import Version
 
-    version = Version(_get_project_version())
+    if not notes and not notes_file:
+        response = input('No release notes or notes file specified, continue? [Y/n]')
+        response = response.strip().lower() or 'y'
+        if response not in ['yes', 'y']:
+            raise Exit('No release notes specified.')
 
     # Check that there's no release with the current version
+    version = Version(_get_project_version())
     latest_release, latest_tag = _get_latest_release()
     latest_version = Version(_get_version_from_release_name(latest_release))
     if str(latest_version) != latest_tag:
@@ -242,7 +266,12 @@ def build_release(
         notes_file_path = Path(notes_file)
         command += f' --notes-file "{notes_file_path.resolve(strict=True)}"'
 
-    c.run(command)
+    response = input(f'Creating GitHub release `{new_release}`. Press Y to confirm. ')
+    if response.lower().strip() == 'y':
+        c.run(command)
+        print('GitHub release created. Upload artifacts with `build.upload`.')
+    else:
+        print('GitHub release not created.')
 
 
 @task
@@ -330,6 +359,7 @@ test_collection.add_task(test_unit, 'unit')
 
 build_collection = Collection('build')
 build_collection.add_task(build_version, 'version')
+build_collection.add_task(build_clean, 'clean')
 build_collection.add_task(build_publish, 'publish')
 build_collection.add_task(build_release, 'release')
 
