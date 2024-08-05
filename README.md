@@ -12,7 +12,8 @@ function.
 Both help with passing as much logic as possible to parameters and fixtures, so test cases can be
 declarative, ie, the business logic and initializations happen outside the test case and the test
 focuses on the thing that it's supposed to test.  
-This helps with:
+
+Helps with:
 * DRYness.
 * More easily understand the test case.
 * Add/remove test case variants, with different parameters.
@@ -41,6 +42,10 @@ multiple parameters.
       3. [Using `params`](#using-params)
    2. [`get_request_param`](#get_request_param-1)
 3. [Similar projects](#similar-projects)
+
+Under [docs](https://github.com/joaonc/pytest-params/tree/main/docs):
+1. [Development](https://github.com/joaonc/pytest-params/blob/main/docs/develop.md)
+2. [Publishing to Pypi](https://github.com/joaonc/pytest-params/blob/main/docs/publish.md)
 
 ## Installation
 
