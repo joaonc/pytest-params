@@ -184,8 +184,8 @@ def build_version(c, version: str = '', bump: str = ''):
 
     _update_project_version(str(v2))
     print(
-        f'New version is {v2}. Modified files have not been commited:\n'
-        + '\n'.join(f'{file.relative_to(PROJECT_ROOT)}' for file in VERSION_FILES)
+        f'New version is `{v2}`. Modified files have not been commited:\n'
+        + '\n'.join(f'  {file.relative_to(PROJECT_ROOT)}' for file in VERSION_FILES)
     )
 
 
@@ -213,7 +213,7 @@ def build_publish(c, no_upload: bool = False):
     # Upload to pypi
     if not no_upload:
         version = _get_project_version()
-        response = input(f'Publishing version {version} to Pypi. Press Y to confirm. ')
+        response = input(f'Publishing version `{version}` to Pypi. Press Y to confirm. ')
         if response.lower().strip() == 'y':
             c.run('flit publish')
         else:
