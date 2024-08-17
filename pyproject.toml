@@ -46,7 +46,7 @@ version = '0.2.0'
 description = 'Simplified pytest test case parameters.'
 readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
-license = {file = 'LICENSE'}
+license = {file = 'LICENSE.txt'}
 dependencies = ['pytest>=7.0.0']
 classifiers = [
     "License :: OSI Approved :: MIT License",

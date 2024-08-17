@@ -1,6 +1,7 @@
 # pytest-params
 
 [![image](https://img.shields.io/pypi/v/pytest-params.svg)](https://pypi.python.org/pypi/pytest-params)
+[![Project License - MIT](https://img.shields.io/pypi/l/pytest-params.svg)](./LICENSE.txt)
 
 Simplified pytest test case parameters.
 
