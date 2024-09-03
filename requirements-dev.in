@@ -3,7 +3,6 @@
 # Dev tools
 invoke              # Tasks
 pip-tools           # Package management
-semantic-version    # Semantic versioning, more useful than `packaging.version`
 
 # Linting
 black               # Linter
