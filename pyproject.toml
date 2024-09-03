@@ -49,9 +49,13 @@ readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
 license = {file = 'LICENSE'}
 dependencies = ['pytest>=7.0.0']
+# https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Framework :: Pytest" ,
+    'License :: OSI Approved :: MIT License',
+    'Framework :: Pytest',
+    'Intended Audience :: Developers',
+    'Programming Language :: Python',
+    'Development Status :: 5 - Production/Stable'
 ]
 
 [project.urls]
