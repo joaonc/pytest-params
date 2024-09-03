@@ -8,7 +8,7 @@ black==24.8.0
     # via -r requirements-dev.in
 build==1.2.1
     # via pip-tools
-certifi==2024.7.4
+certifi==2024.8.30
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -16,25 +16,19 @@ click==8.1.7
     # via
     #   black
     #   pip-tools
-colorama==0.4.6
-    # via
-    #   -r requirements.txt
-    #   build
-    #   click
-    #   pytest
 docutils==0.21.2
     # via flit
 exceptiongroup==1.2.2
     # via
     #   -r requirements.txt
     #   pytest
-flake8==7.1.0
+flake8==7.1.1
     # via -r requirements-dev.in
 flit==3.9.0
     # via -r requirements-dev.in
 flit-core==3.9.0
     # via flit
-idna==3.7
+idna==3.8
     # via requests
 iniconfig==2.0.0
     # via
@@ -46,7 +40,7 @@ isort==5.13.2
     # via -r requirements-dev.in
 mccabe==0.7.0
     # via flake8
-mypy==1.11.1
+mypy==1.11.2
     # via -r requirements-dev.in
 mypy-extensions==1.0.0
     # via
@@ -68,7 +62,7 @@ pluggy==1.5.0
     # via
     #   -r requirements.txt
     #   pytest
-pycodestyle==2.12.0
+pycodestyle==2.12.1
     # via flake8
 pyflakes==3.2.0
     # via flake8
@@ -82,8 +76,6 @@ pytest==8.3.2
     #   -r requirements.txt
 requests==2.32.3
     # via flit
-semantic-version==2.10.0
-    # via -r requirements-dev.in
 tomli==2.0.1
     # via
     #   -r requirements.txt
@@ -100,7 +92,7 @@ typing-extensions==4.12.2
     #   mypy
 urllib3==2.2.2
     # via requests
-wheel==0.43.0
+wheel==0.44.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
