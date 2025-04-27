@@ -5,6 +5,7 @@ def test_function():
     """
     Test that the stubs are working.
     """
+
     @params(
         'param',
         [
