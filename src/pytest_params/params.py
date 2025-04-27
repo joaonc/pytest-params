@@ -9,14 +9,14 @@ from _pytest.mark.structures import MarkDecorator, ParameterSet
 from packaging import version
 
 if version.parse(pytest.__version__) >= version.parse('8.0.0'):
-    from _pytest.scope import _ScopeName
+    from _pytest.scope import _ScopeName  # noqa
 else:
     _ScopeName: Type[str] = Literal['session', 'package', 'module', 'class', 'function']  # type: ignore # noqa
 # isort: on
 
 # `name_values` should have type `Iterable[tuple[str, ...]]`, which states the tuple has a string
-# as first item and then an unknown number of items with any type. However, this declaration is not
-# processed by `mypy`, so simplified it.
+# as the first item and then an unknown number of items with any type. However, this declaration is
+# not processed by `mypy`, so simplified it.
 
 
 def params(
