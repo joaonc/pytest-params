@@ -1,8 +1,10 @@
 from pytest_params import get_request_param, params, params_values
 
 
-# Test that the stubs are working
 def test_function():
+    """
+    Test that the stubs are working.
+    """
     @params(
         'param',
         [
