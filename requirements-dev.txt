@@ -4,55 +4,49 @@
 #
 #    pip-compile requirements-dev.in
 #
-black==24.8.0
+black==25.1.0
     # via -r requirements-dev.in
-build==1.2.1
+build==1.2.2.post1
     # via pip-tools
-certifi==2024.7.4
+certifi==2025.4.26
     # via requests
-charset-normalizer==3.3.2
+charset-normalizer==3.4.1
     # via requests
-click==8.1.7
+click==8.1.8
     # via
     #   black
     #   pip-tools
-colorama==0.4.6
-    # via
-    #   -r requirements.txt
-    #   build
-    #   click
-    #   pytest
 docutils==0.21.2
     # via flit
 exceptiongroup==1.2.2
     # via
     #   -r requirements.txt
     #   pytest
-flake8==7.1.0
+flake8==7.2.0
     # via -r requirements-dev.in
-flit==3.9.0
+flit==3.12.0
     # via -r requirements-dev.in
-flit-core==3.9.0
+flit-core==3.12.0
     # via flit
-idna==3.7
+idna==3.10
     # via requests
-iniconfig==2.0.0
+iniconfig==2.1.0
     # via
     #   -r requirements.txt
     #   pytest
 invoke==2.2.0
     # via -r requirements-dev.in
-isort==5.13.2
+isort==6.0.1
     # via -r requirements-dev.in
 mccabe==0.7.0
     # via flake8
-mypy==1.11.1
+mypy==1.15.0
     # via -r requirements-dev.in
-mypy-extensions==1.0.0
+mypy-extensions==1.1.0
     # via
     #   black
     #   mypy
-packaging==24.1
+packaging==25.0
     # via
     #   -r requirements.txt
     #   black
@@ -62,29 +56,29 @@ pathspec==0.12.1
     # via black
 pip-tools==7.4.1
     # via -r requirements-dev.in
-platformdirs==4.2.2
+platformdirs==4.3.7
     # via black
 pluggy==1.5.0
     # via
     #   -r requirements.txt
     #   pytest
-pycodestyle==2.12.0
+pycodestyle==2.13.0
     # via flake8
-pyflakes==3.2.0
+pyflakes==3.3.2
     # via flake8
-pyproject-hooks==1.1.0
+pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.2
+pytest==8.3.5
     # via
-    #   -r requirements-dev.in
     #   -r requirements.txt
+    #   -r requirements-dev.in
 requests==2.32.3
     # via flit
 semantic-version==2.10.0
     # via -r requirements-dev.in
-tomli==2.0.1
+tomli==2.2.1
     # via
     #   -r requirements.txt
     #   black
@@ -92,15 +86,15 @@ tomli==2.0.1
     #   mypy
     #   pip-tools
     #   pytest
-tomli-w==1.0.0
+tomli-w==1.2.0
     # via flit
-typing-extensions==4.12.2
+typing-extensions==4.13.2
     # via
     #   black
     #   mypy
-urllib3==2.2.2
+urllib3==2.4.0
     # via requests
-wheel==0.43.0
+wheel==0.45.1
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
