@@ -4,9 +4,8 @@ target-version = ['py310']
 skip-string-normalization = true
 exclude='''
 (
-    src/show_dialog/ui/forms
-  | .venv.*
-  | venv.*
+  \.venv.*
+  | \venv.*
 )
 '''
 
@@ -47,7 +46,7 @@ version = '0.2.0'
 description = 'Simplified pytest test case parameters.'
 readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
-license = {file = 'LICENSE'}
+license = {file = 'LICENSE.txt'}
 dependencies = ['pytest>=7.0.0']
 # https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [

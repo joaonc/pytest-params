@@ -22,7 +22,7 @@ def test_not_parametrized(my_fixture):
 @pytest.mark.parametrize('my_fixture', [5])
 def test_not_indirect(my_fixture):
     """
-    The fixture is specified but ``indirect=True`` is not specified.
+    The fixture is specified, but ``indirect=True`` is not specified.
     Expected that the value specified in ``@pytest.mark.parametrize`` is returned.
     """
     assert my_fixture == 5
@@ -39,7 +39,7 @@ def test_parameter_specified(my_fixture):
 @pytest.mark.parametrize('my_fixture', [{}], indirect=True)
 def test_no_key(my_fixture):
     """
-    Fixture used with ``indirect=True`` and the parameter is a dictionary, but the required key
+    Fixture used with ``indirect=True``, and the parameter is a dictionary, but the required key
     is not specified.
     """
     assert my_fixture == DEFAULT_VALUE
