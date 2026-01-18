@@ -31,6 +31,20 @@ disable_error_code = 'annotation-unchecked'
 ignore_missing_imports = true
 module = ['invoke']
 
+[tool.flake8]
+max-line-length = 100
+# Errors being ignored:
+# E203 is not PEP8 compliant and clashes with black
+# E701,E704 multiple statements on one line (colon)
+#   Conflict with `black`, where empty class definitions (with Ellipsis) are formatted to be in
+#   one line in `black`, ex `class FileUpdateError(Exception): ...`
+# W503 line break before binary operator clashes with black
+# F811 redefinition of unused import happens when importing pytest fixtures in test modules
+extend-ignore = ['E203', 'E266', 'E501', 'E701', 'E704', 'W503', 'F811']
+exclude = [
+    '.git', '.github', '__pycache__', '.venv*', 'venv*', 'build', 'dist'
+]
+
 [tool.pytest.ini_options]
 testpaths = ['tests']
 markers = ['flaky', 'nightly', 'performance', 'pri1']
