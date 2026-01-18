@@ -7,6 +7,7 @@ pip-tools           # Package management
 # Linting
 black               # Linter
 flake8              # Linter
+flake8-pyproject    # Flake8 in pyproject.toml
 isort               # Linter
 mypy                # Code inspector
 
