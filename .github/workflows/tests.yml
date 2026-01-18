@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version: '3.11'
-            pytest-version: 8
+          - python-version: '3.12'
+            pytest-version: 9
           - python-version: '3.10'
             pytest-version: 7
     runs-on: ubuntu-latest
