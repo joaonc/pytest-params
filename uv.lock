@@ -284,13 +284,11 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
+    { name = "packaging" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "textual-searchable-selectionlist" },
     { name = "typer-invoke" },
-]
-publish = [
-    { name = "packaging" },
 ]
 
 [package.metadata]
@@ -299,12 +297,12 @@ requires-dist = [{ name = "pytest", specifier = ">=7.0.0" }]
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy" },
+    { name = "packaging" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "textual-searchable-selectionlist" },
     { name = "typer-invoke" },
 ]
-publish = [{ name = "packaging" }]
 
 [[package]]
 name = "rich"
