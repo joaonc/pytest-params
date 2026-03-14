@@ -1,0 +1,76 @@
+annotated-doc==0.0.4
+    # via typer
+click==8.3.1
+    # via typer
+colorama==0.4.6
+    # via
+    #   -r requirements.txt
+    #   click
+    #   pytest
+iniconfig==2.3.0
+    # via
+    #   -r requirements.txt
+    #   pytest
+librt==0.8.1
+    # via mypy
+linkify-it-py==2.1.0
+    # via markdown-it-py
+markdown-it-py[linkify]==4.0.0
+    # via
+    #   mdit-py-plugins
+    #   rich
+    #   textual
+mdit-py-plugins==0.5.0
+    # via textual
+mdurl==0.1.2
+    # via markdown-it-py
+mypy==1.19.1
+    # via -r requirements-dev.in
+mypy-extensions==1.1.0
+    # via mypy
+packaging==26.0
+    # via
+    #   -r requirements-dev.in
+    #   -r requirements.txt
+    #   pytest
+pathspec==1.0.4
+    # via mypy
+platformdirs==4.9.4
+    # via textual
+pluggy==1.6.0
+    # via
+    #   -r requirements.txt
+    #   pytest
+pygments==2.19.2
+    # via
+    #   -r requirements.txt
+    #   pytest
+    #   rich
+    #   textual
+pytest==9.0.2
+    # via
+    #   -r requirements-dev.in
+    #   -r requirements.txt
+rich==14.3.3
+    # via
+    #   textual
+    #   typer
+    #   typer-invoke
+ruff==0.15.6
+    # via -r requirements-dev.in
+shellingham==1.5.4
+    # via typer
+textual==8.1.1
+    # via textual-searchable-selectionlist
+textual-searchable-selectionlist==0.0.7
+    # via -r requirements-dev.in
+typer==0.24.1
+    # via typer-invoke
+typer-invoke==0.5.0
+    # via -r requirements-dev.in
+typing-extensions==4.15.0
+    # via
+    #   mypy
+    #   textual
+uc-micro-py==2.0.0
+    # via linkify-it-py

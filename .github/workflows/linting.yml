@@ -10,17 +10,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Create virtual environment
+        run: uv venv
+
       - name: Install requirements
-        run: pip install -r requirements-dev.txt
-      - name: isort
-        run: isort .
-      - name: black
-        run: black .
-      - name: flake8
-        run: flake8 .
-      - name: mypy
-        run: mypy .
+        run: |
+          uv pip install typer-invoke
+          uv run inv pip install dev
+
+      - name: Linting
+        run: uv run inv lint all

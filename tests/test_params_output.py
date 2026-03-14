@@ -10,7 +10,7 @@ def test_one_param_one_value(pytester):
     result.assert_outcomes(passed=1, failed=0)
     result.stdout.fnmatch_lines(
         [
-            f"*{TEST_MODULE}::{test_function}[[]Foo[]]*",
+            f'*{TEST_MODULE}::{test_function}[[]Foo[]]*',
         ]
     )
 
@@ -22,8 +22,8 @@ def test_one_param_multiple_values(pytester):
     result.assert_outcomes(passed=2, failed=0)
     result.stdout.fnmatch_lines(
         [
-            f"*{TEST_MODULE}::{test_function}[[]Foo[]]*",
-            f"*{TEST_MODULE}::{test_function}[[]Bar[]]*",
+            f'*{TEST_MODULE}::{test_function}[[]Foo[]]*',
+            f'*{TEST_MODULE}::{test_function}[[]Bar[]]*',
         ]
     )
 
@@ -35,6 +35,6 @@ def test_multiple_params_one_value(pytester):
     result.assert_outcomes(passed=1, failed=0)
     result.stdout.fnmatch_lines(
         [
-            f"*{TEST_MODULE}::{test_function}[[]Foo[]]*",
+            f'*{TEST_MODULE}::{test_function}[[]Foo[]]*',
         ]
     )

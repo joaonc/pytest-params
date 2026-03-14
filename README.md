@@ -54,6 +54,19 @@ Under [docs](https://github.com/joaonc/pytest-params/tree/main/docs):
 $ pip install pytest-params
 ```
 
+## Development and testing
+
+[`uv`](https://docs.astral.sh/uv/) is required for development. Install it first, then set up
+the environment:
+
+```bash
+uv venv
+uv pip install -r admin/requirements/requirements-dev.txt
+```
+
+See [docs/develop.md](https://github.com/joaonc/pytest-params/blob/main/docs/develop.md) for
+detailed development instructions.
+
 ## Examples
 Some examples are provided here. For more examples with advanced usage, please see the test cases
 under `tests`.
