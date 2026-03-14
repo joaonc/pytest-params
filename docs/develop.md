@@ -3,7 +3,7 @@
 [`uv`](https://docs.astral.sh/uv/) is required. Install it first, then set up the environment:
 ```bash
 uv venv
-uv pip install -r admin/requirements/requirements-dev.txt
+uv sync --all-groups
 ```
 
 ## Tasks
@@ -11,7 +11,7 @@ This project uses **typer-invoke** ([GitHub](https://github.com/joaonc/typer-inv
 facilitate executing miscellaneous tasks that help with development.
 
 ### Using typer-invoke
-After installing the dev requirements (which include `typer-invoke`), try the commands below.
+After syncing dependencies (which include `typer-invoke`), try the commands below.
 
 * Help for a module
   ```

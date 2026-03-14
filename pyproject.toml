@@ -65,6 +65,16 @@ classifiers = [
 [project.urls]
 Home = 'https://github.com/joaonc/pytest-params'
 
+[dependency-groups]
+dev = [
+    'mypy',
+    'packaging',
+    'pytest',
+    'ruff',
+    'textual_searchable_selectionlist',
+    'typer-invoke',
+]
+
 [tool.typer-invoke]
 modules = [
     'admin.build',

@@ -61,7 +61,7 @@ the environment:
 
 ```bash
 uv venv
-uv pip install -r admin/requirements/requirements-dev.txt
+uv sync --all-groups
 ```
 
 See [docs/develop.md](https://github.com/joaonc/pytest-params/blob/main/docs/develop.md) for
