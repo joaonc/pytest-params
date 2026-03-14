@@ -1,11 +1,15 @@
 -r requirements.txt
 
 # Dev tools
+textual_searchable_selectionlist  # CLI selection widget
 typer-invoke           # Tasks
 
 # Linting
 mypy                   # Code inspector
 ruff                   # Linter/formatter
+
+# Test
+pytest                 # Test framework
 
 # Build and publish
 packaging              # For version management

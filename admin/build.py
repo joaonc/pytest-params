@@ -401,8 +401,7 @@ def build_release(
     latest_version = Version(_get_version_from_release_name(latest_release))
     if str(latest_version) != latest_tag:
         logger.error(
-            f'Invalid format in latest release or tag: Release: {latest_release}, '
-            f'Tag: {latest_tag}'
+            f'Invalid format in latest release or tag: Release: {latest_release}, Tag: {latest_tag}'
         )
         raise typer.Exit(1)
 
