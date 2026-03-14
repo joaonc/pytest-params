@@ -23,7 +23,7 @@ def test_unit(dry: DryAnnotation = False):
     Temporarily installs the ``pytest-params`` package in editable mode.
     """
     run('uv', 'pip', 'install', '--editable', '.', dry=dry)
-    run('python', '-m', 'pytest', dry=dry)
+    run('uv', 'run', 'pytest', dry=dry)
     run('uv', 'pip', 'uninstall', 'pytest-params', dry=dry)
 
 
