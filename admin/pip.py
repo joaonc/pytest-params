@@ -28,13 +28,11 @@ class Requirements(StrEnum):
 
     MAIN = 'requirements'
     DEV = 'requirements-dev'
-    PUBLISH = 'requirements-publish'
 
 
 REQUIREMENTS_TO_GROUP = {
     Requirements.MAIN: None,
     Requirements.DEV: 'dev',
-    Requirements.PUBLISH: 'publish',
 }
 
 RequirementsAnnotation = Annotated[
