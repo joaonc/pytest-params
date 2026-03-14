@@ -1,57 +1,47 @@
-[tool.black]
+[tool.ruff]
 line-length = 100
-target-version = ['py310']
-skip-string-normalization = true
-exclude='''
-(
-  \.venv.*
-  | \venv.*
-)
-'''
+target-version = 'py312'
+exclude = [
+    '.venv*',
+    'venv*',
+    'build',
+    'dist',
+]
 
-[tool.isort]
-line_length = 100
-profile = 'black'
-sections = 'FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER'
-skip_glob = ['**/.venv*', '**/venv*']
+[tool.ruff.lint]
+select = ['E', 'F', 'W', 'I']
+# E266: too many leading '#' for block comment
+# E501: line too long - handled by the formatter
+# E701: multiple statements on one line (colon) - conflicts with empty class definitions
+#   formatted by ruff as `class FileUpdateError(Exception): ...`
+# F811: redefinition of unused name from import (happens when importing pytest fixtures)
+extend-ignore = ['E266', 'E501', 'E701', 'F811']
+
+[tool.ruff.lint.isort]
+# Default section order: FUTURE, STDLIB, THIRDPARTY, FIRSTPARTY, LOCALFOLDER
+
+[tool.ruff.format]
+quote-style = 'single'
 
 [tool.mypy]
 # Technical notes on exclusions:
 # 1 The regex for all folders needs to be in a one-line string.
 # 2 The `.` doesn't need to be escaped. Escape with `\\.` for a fully compatible regex.
-exclude = '^venv*|^.venv*|.git|.eggs|build|dist|.cache|.pytest_cache|.mypy_cache|.vscode|.idea|tasks.py'
-python_version = '3.10'
+exclude = '^venv*|^.venv*|.git|.eggs|build|dist|.cache|.pytest_cache|.mypy_cache|.vscode|.idea'
+python_version = '3.12'
 warn_return_any = true
 warn_unused_configs = true
 # Disable the warning below, from type hinting variables in a function.
 # By default, the bodies of untyped functions are not checked, consider using --check-untyped-defs
 disable_error_code = 'annotation-unchecked'
 
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-module = ['invoke']
-
-[tool.flake8]
-max-line-length = 100
-# Errors being ignored:
-# E203 is not PEP8 compliant and clashes with black
-# E701,E704 multiple statements on one line (colon)
-#   Conflict with `black`, where empty class definitions (with Ellipsis) are formatted to be in
-#   one line in `black`, ex `class FileUpdateError(Exception): ...`
-# W503 line break before binary operator clashes with black
-# F811 redefinition of unused import happens when importing pytest fixtures in test modules
-extend-ignore = ['E203', 'E266', 'E501', 'E701', 'E704', 'W503', 'F811']
-exclude = [
-    '.git', '.github', '__pycache__', '.venv*', 'venv*', 'build', 'dist'
-]
-
 [tool.pytest.ini_options]
 testpaths = ['tests']
 markers = ['flaky', 'nightly', 'performance', 'pri1']
 
 [build-system]
-requires = ['flit_core >=3.2,<4']
-build-backend = 'flit_core.buildapi'
+requires = ['uv_build>=0.10.4,<0.11.0']
+build-backend = 'uv_build'
 
 [project]
 name = 'pytest-params'
@@ -59,7 +49,9 @@ version = '0.3.0'
 description = 'Simplified pytest test case parameters.'
 readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
-license = {file = 'LICENSE.txt'}
+license = 'MIT'
+license-files = ['LICENSE.txt']
+requires-python = '>=3.10'
 dependencies = ['pytest>=7.0.0']
 # https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [
@@ -73,5 +65,10 @@ classifiers = [
 [project.urls]
 Home = 'https://github.com/joaonc/pytest-params'
 
-[tool.flit.module]
-name = 'pytest_params'
+[tool.typer-invoke]
+modules = [
+    'admin.build',
+    'admin.lint',
+    'admin.pip',
+    'admin.test',
+]

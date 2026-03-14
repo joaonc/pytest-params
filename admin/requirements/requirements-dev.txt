@@ -1,0 +1,55 @@
+annotated-doc==0.0.4
+    # via typer
+click==8.3.1
+    # via typer
+colorama==0.4.6
+    # via
+    #   -r admin/requirements/requirements.txt
+    #   click
+    #   pytest
+iniconfig==2.3.0
+    # via
+    #   -r admin/requirements/requirements.txt
+    #   pytest
+librt==0.8.1
+    # via mypy
+markdown-it-py==4.0.0
+    # via rich
+mdurl==0.1.2
+    # via markdown-it-py
+mypy==1.19.1
+    # via -r admin/requirements/requirements-dev.in
+mypy-extensions==1.1.0
+    # via mypy
+packaging==26.0
+    # via
+    #   -r admin/requirements/requirements-dev.in
+    #   -r admin/requirements/requirements.txt
+    #   pytest
+pathspec==1.0.4
+    # via mypy
+pluggy==1.6.0
+    # via
+    #   -r admin/requirements/requirements.txt
+    #   pytest
+pygments==2.19.2
+    # via
+    #   -r admin/requirements/requirements.txt
+    #   pytest
+    #   rich
+pytest==9.0.2
+    # via -r admin/requirements/requirements.txt
+rich==14.3.3
+    # via
+    #   typer
+    #   typer-invoke
+ruff==0.15.6
+    # via -r admin/requirements/requirements-dev.in
+shellingham==1.5.4
+    # via typer
+typer==0.24.1
+    # via typer-invoke
+typer-invoke==0.5.0
+    # via -r admin/requirements/requirements-dev.in
+typing-extensions==4.15.0
+    # via mypy

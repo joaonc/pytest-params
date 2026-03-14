@@ -1,0 +1,11 @@
+-r requirements.txt
+
+# Dev tools
+typer-invoke           # Tasks
+
+# Linting
+mypy                   # Code inspector
+ruff                   # Linter/formatter
+
+# Build and publish
+packaging              # For version management

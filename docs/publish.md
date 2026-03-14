@@ -1,19 +1,16 @@
 # Publishing package
 ## Requirements
-* `flit`  
-  For the publishing process, [flit](https://flit.pypa.io/en/stable/) is used to make it simpler.  
-  Included in `requirements-dev.txt`.
+* `uv`  
+  For the publishing process, [`uv`](https://docs.astral.sh/uv/) is used.  
+  Install it separately (not via pip).
 * Pypi account and API token  
   To publish to Pypi, an account is needed and an API token generated.  
   Go to [https://pypi.org](https://pypi.org/) and follow instructions.
-* `.pypirc` file  
-  Create the file `.pypirc` in the home folder with the token:
+* `UV_PUBLISH_TOKEN` environment variable  
+  Set the Pypi token as an environment variable before publishing:
   ```
-  [pypi]
-    username = __token__
-    password = pypi-AhEIc...ktllA
+  $env:UV_PUBLISH_TOKEN = 'pypi-AhEIc...ktllA'
   ```
-  Note that using username/password has been disabled in Pypi. Need to use token.
 * GitHub CLI  
   This project uses [GitHub CLI](https://cli.github.com/) ([docs](https://cli.github.com/manual/))
   in the release process.
@@ -28,28 +25,27 @@
   ```
 
 ## Workflow
-To further simplify, [invoke](https://www.pyinvoke.org/) tasks were added.  
 For a full list of build related tasks:
-```
-inv --list build
+```bash
+python -m admin.build --help
 ```
 
 1. Set/bump the version
-   ```
-   inv build.version
+   ```bash
+   python -m admin.build version
    ```
    This will modify the version in the required files but not commit the changes.
 2. Create and merge a PR with the new version.  
    Call it, for example, _"Release 1.2.3"_.
 3. Build and publish to Pypi.
    This command builds the package locally (in the `dist` folder) and publish (upload) to Pypi.
+   ```bash
+   python -m admin.build publish
    ```
-   inv build.publish
-   ```
-   To only build the package without uploading to Pypi, use the `--no-upload` option.
+   To only build without uploading to Pypi, use the `--no-upload` option.
 4. Create GitHub release and tag.
-   ```
-   inv build.release
+   ```bash
+   python -m admin.build release
    ```
    This will:
      * Create a tag in GitHub with the version, ex `1.2.3`.
