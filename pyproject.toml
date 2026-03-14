@@ -1,6 +1,6 @@
 [tool.ruff]
 line-length = 100
-target-version = 'py312'
+target-version = 'py311'
 exclude = [
     '.venv*',
     'venv*',
@@ -28,7 +28,7 @@ quote-style = 'single'
 # 1 The regex for all folders needs to be in a one-line string.
 # 2 The `.` doesn't need to be escaped. Escape with `\\.` for a fully compatible regex.
 exclude = '^venv*|^.venv*|.git|.eggs|build|dist|.cache|.pytest_cache|.mypy_cache|.vscode|.idea'
-python_version = '3.12'
+python_version = '3.11'
 warn_return_any = true
 warn_unused_configs = true
 # Disable the warning below, from type hinting variables in a function.
@@ -51,7 +51,7 @@ readme = 'README.md'
 authors = [{name = 'Joao Coelho'}]
 license = 'MIT'
 license-files = ['LICENSE.txt']
-requires-python = '>=3.10'
+requires-python = '>=3.11'
 dependencies = ['pytest>=7.0.0']
 # https://pypi.org/pypi?%3Aaction=list_classifiers
 classifiers = [
