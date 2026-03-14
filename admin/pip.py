@@ -4,15 +4,14 @@ Python packages related tasks.
 """
 
 from enum import StrEnum
-from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from admin import PROJECT_ROOT
-from admin.utils import DryAnnotation, logger, multiple_parameters, run
+from admin.utils import DryAnnotation, logger, run
 
-REQUIREMENTS_DIR = PROJECT_ROOT / 'admin' / 'requirements'
+LOCK_FILE = PROJECT_ROOT / 'uv.lock'
 
 app = typer.Typer(
     help=__doc__,
@@ -24,68 +23,47 @@ app = typer.Typer(
 
 class Requirements(StrEnum):
     """
-    Requirements files.
-
-    Order matters as most operations with multiple files need ``requirements.txt`` to be processed
-    first.
-    Add new requirements files here.
+    Requirement groups.
     """
 
     MAIN = 'requirements'
     DEV = 'requirements-dev'
+    PUBLISH = 'requirements-publish'
 
 
-class RequirementsType(StrEnum):
-    IN = 'in'
-    OUT = 'txt'
-
-
-REQUIREMENTS_TASK_HELP = {
-    'requirements': '`.in` file. Full name not required, just the initial name after the dash '
-    f'(ex. "{Requirements.MAIN.name}"). For main file use "{Requirements.MAIN.name}". '
-    f'Available requirements: {", ".join(Requirements)}.'
+REQUIREMENTS_TO_GROUP = {
+    Requirements.MAIN: None,
+    Requirements.DEV: 'dev',
+    Requirements.PUBLISH: 'publish',
 }
 
 RequirementsAnnotation = Annotated[
     list[str] | None,
     typer.Argument(
-        help='Requirement file(s) to compile. If not set, all files are compiled.\nValues can be '
+        help='Requirement group(s) to use. If not set, all groups are used.\nValues can be '
         + ', '.join([f'`{x.name.lower()}`' for x in Requirements]),
         show_default=False,
     ),
 ]
 
 
-def _get_requirements_file(
-    requirements: str | Requirements, requirements_type: str | RequirementsType
-) -> Path:
-    """Return the full requirements file path."""
+def _get_requirement(requirements: str | Requirements) -> Requirements:
     if isinstance(requirements, Requirements):
-        reqs = requirements
-    else:
+        return requirements
+    try:
+        return Requirements[requirements.upper()]  # noqa
+    except KeyError:
         try:
-            reqs = Requirements[requirements.upper()]  # noqa
-        except KeyError:
-            try:
-                reqs = Requirements(requirements.lower())
-            except ValueError:
-                logger.error(f'`{requirements}` is an unknown requirements file.')
-                raise typer.Exit(1)
-
-    if isinstance(requirements_type, RequirementsType):
-        reqs_type = requirements_type
-    else:
-        reqs_type = RequirementsType(requirements_type.lstrip('.').lower())
-
-    return REQUIREMENTS_DIR / f'{reqs}.{reqs_type}'
+            return Requirements(requirements.lower())
+        except ValueError:
+            logger.error(f'`{requirements}` is an unknown requirements group.')
+            raise typer.Exit(1)
 
 
-def _get_requirements_files(
-    requirements: list[str | Requirements] | None, requirements_type: str | RequirementsType
-) -> list[Path]:
-    """Get full filename+extension and sort by the order defined in ``Requirements``"""
-    requirements_files = list(Requirements) if requirements is None else requirements
-    return [_get_requirements_file(r, requirements_type) for r in requirements_files]
+def _get_requirements(requirements: list[str | Requirements] | None) -> list[Requirements]:
+    if requirements is None:
+        return list(Requirements)
+    return [_get_requirement(req) for req in requirements]
 
 
 @app.command(name='compile')
@@ -93,42 +71,44 @@ def pip_compile(
     requirements: RequirementsAnnotation = None,
     clean: Annotated[
         bool,
-        typer.Option(
-            help=f'Delete the existing requirements `{RequirementsType.OUT.value}` files, forcing '
-            f'a clean compilation.'
-        ),
+        typer.Option(help='Delete the existing `uv.lock` file before generating a new one.'),
     ] = False,
     dry: DryAnnotation = False,
 ):
     """
-    Compile requirements file(s).
+    Update lock file.
     """
-    if clean and not dry:
-        for filename in _get_requirements_files(requirements, RequirementsType.OUT):
-            filename.unlink(missing_ok=True)
+    _ = _get_requirements(requirements)
 
-    for filename in _get_requirements_files(requirements, RequirementsType.IN):
-        output_file = filename.with_suffix('.txt')
-        run(
-            'uv',
-            'pip',
-            'compile',
-            '--no-header',
-            '--no-strip-extras',
-            filename.name,
-            '-o',
-            output_file.name,
-            dry=dry,
-            cwd=REQUIREMENTS_DIR,
+    if requirements is not None:
+        logger.info(
+            'Requirement groups are ignored for lock generation; `uv lock` resolves all groups.'
         )
+
+    if clean and not dry:
+        LOCK_FILE.unlink(missing_ok=True)
+
+    run('uv', 'lock', dry=dry)
 
 
 @app.command(name='sync')
 def pip_sync(requirements: RequirementsAnnotation = None, dry: DryAnnotation = False):
     """
-    Synchronize environment with requirements file.
+    Synchronize environment with lock file.
     """
-    run('uv', 'pip', 'sync', *_get_requirements_files(requirements, RequirementsType.OUT), dry=dry)
+    selected_requirements = _get_requirements(requirements)
+
+    command = ['uv', 'sync']
+    if requirements is None:
+        command.append('--all-groups')
+    else:
+        for req in selected_requirements:
+            group = REQUIREMENTS_TO_GROUP[req]
+            if group is None:
+                command.append('--no-dev')
+            else:
+                command.extend(['--only-group', group])
+    run(*command, dry=dry)
 
 
 @app.command(name='package')
@@ -142,18 +122,18 @@ def pip_package(
     """
     Upgrade one or more packages.
     """
-    for filename in _get_requirements_files(requirements, RequirementsType.IN):
-        output_file = filename.with_suffix('.txt')
-        run(
-            'uv',
-            'pip',
-            'compile',
-            *multiple_parameters('--upgrade-package', *package),
-            str(filename),
-            '-o',
-            str(output_file),
-            dry=dry,
-        )
+    selected_requirements = _get_requirements(requirements)
+
+    for req in selected_requirements:
+        group = REQUIREMENTS_TO_GROUP[req]
+        group_args = []
+        if group:
+            group_args = ['--group', group]
+
+        for pkg in package:
+            run('uv', 'add', *group_args, '--upgrade-package', pkg, pkg, dry=dry)
+
+    run('uv', 'lock', dry=dry)
 
 
 @app.command(name='upgrade')
@@ -166,28 +146,20 @@ def pip_upgrade(requirements, dry: DryAnnotation = False):
     Use ``package`` to only upgrade individual packages,
     Ex ``pip package dev mypy flake8``.
     """
-    for filename in _get_requirements_files(requirements, RequirementsType.IN):
-        output_file = filename.with_suffix('.txt')
-        run(
-            'uv',
-            'pip',
-            'compile',
-            '--no-strip-extras',
-            '--upgrade',
-            str(filename),
-            '-o',
-            str(output_file),
-            dry=dry,
+    _ = _get_requirements(requirements)
+    if requirements is not None:
+        logger.info(
+            'Requirement groups are ignored for full upgrade; use `package` for targeted upgrades.'
         )
+    run('uv', 'lock', '--upgrade', dry=dry)
 
 
 @app.command(name='install')
 def pip_install(requirements: RequirementsAnnotation, dry: DryAnnotation = False):
     """
-    Equivalent to ``uv pip install -r <requirements*.txt>``.
+    Install dependencies from lock file.
     """
-    requirements_files = _get_requirements_files(requirements, RequirementsType.OUT)  # type: ignore
-    run('uv', 'pip', 'install', *multiple_parameters('-r', *requirements_files), dry=dry)
+    pip_sync(requirements=requirements, dry=dry)
 
 
 if __name__ == '__main__':
