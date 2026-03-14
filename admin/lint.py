@@ -20,25 +20,48 @@ app = typer.Typer(
 @app.command(name='ruff')
 def lint_ruff(
     path: Annotated[str, typer.Argument(help='Path to directory or file to lint.')] = '.',
+    check: Annotated[
+        bool,
+        typer.Option(
+            help='Check-only mode: report violations without fixing or reformatting. '
+            'Exits non-zero if any issues are found. Use this in CI.',
+        ),
+    ] = False,
     dry: DryAnnotation = False,
 ):
-    run('ruff', 'format', path, dry=dry)
-    run('ruff', 'check', '--fix', path, dry=dry)
+    if check:
+        run('ruff', 'check', path, dry=dry)
+        run('ruff', 'format', '--check', path, dry=dry)
+    else:
+        run('ruff', 'check', '--fix', path, dry=dry)
+        run('ruff', 'format', path, dry=dry)
 
 
 @app.command(name='mypy')
-def lint_mypy(path='.', dry: DryAnnotation = False):
+def lint_mypy(
+    path: Annotated[str, typer.Argument(help='Path to type-check.')] = '.',
+    dry: DryAnnotation = False,
+):
     run('mypy', path, dry=dry)
 
 
 @app.command(name='all')
-def lint_all(dry: DryAnnotation = False):
+def lint_all(
+    check: Annotated[
+        bool,
+        typer.Option(
+            help='Check-only mode: report violations without fixing or reformatting. '
+            'Exits non-zero if any issues are found. Use this in CI.',
+        ),
+    ] = False,
+    dry: DryAnnotation = False,
+):
     """
     Run all linters.
 
     Config for each of the tools is in ``pyproject.toml``.
     """
-    lint_ruff(dry=dry)
+    lint_ruff(check=check, dry=dry)
     lint_mypy(dry=dry)
 
     logger.info('Done')

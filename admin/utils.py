@@ -5,6 +5,7 @@ import sys
 from dataclasses import dataclass
 from enum import StrEnum
 from itertools import chain
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -16,6 +17,20 @@ from admin import PROJECT_ROOT
 
 EMPTY_STR = object()
 """Sentinel object to represent an empty string."""
+
+
+class Environment(StrEnum):
+    LOCAL = 'local'
+    """Run in local machine, no Docker."""
+
+    DEV = 'dev'
+    """Run in Docker in local machine."""
+
+    STAGING = 'staging'
+    """Run in Docker in AWS (staging)."""
+
+    PROD = 'prod'
+    """Run in Docker in AWS (prod)."""
 
 
 class OS(StrEnum):
@@ -33,6 +48,7 @@ class LogLevel(StrEnum):
     WARNING = 'WARNING'
     INFO = 'INFO'
     DEBUG = 'DEBUG'
+    # TRACE = 'TRACE'
 
 
 class NoHighlightRichHandler(RichHandler):
@@ -65,6 +81,11 @@ class StripOutput:
         return text
 
 
+EnvironmentAnnotation = Annotated[
+    Environment | None,
+    typer.Argument(help='Environment to use.', show_default=False),
+]
+
 LogLevelAnnotation = Annotated[
     LogLevel,
     typer.Option(
@@ -82,6 +103,112 @@ DryAnnotation = Annotated[
         show_default=False,
     ),
 ]
+
+
+def read_env_file_from_path(env_path: Path) -> dict[str, str]:
+    """
+    Read a `.env` file. Minimal parser, no dependencies.
+    Does not update environment.
+
+    Rules:
+
+    - Ignores blank lines and comments.
+    - Supports `export KEY=VALUE`.
+    - Strips surrounding single/double quotes.
+    """
+    if not env_path.exists():
+        raise FileNotFoundError(f'Env file not found: {env_path}')
+
+    env = {}
+    for raw_line in env_path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#'):
+            continue
+
+        if line.startswith('export '):
+            line = line.removeprefix('export ').lstrip()
+
+        key, sep, value = line.partition('=')
+        if not sep:
+            continue
+
+        key = key.strip()
+        value = value.strip()
+        if (value.startswith("'") and value.endswith("'")) or (
+            value.startswith('"') and value.endswith('"')
+        ):
+            value = value[1:-1]
+
+        env[key] = value
+
+    return env
+
+
+def get_env_file_path(environment: Environment) -> Path:
+    return PROJECT_ROOT / f'.env.{environment.value}'
+
+
+def read_env_file(environment: Environment) -> dict[str, str]:
+    return read_env_file_from_path(get_env_file_path(environment))
+
+
+# Another version, using `python-dotenv`
+# from dotenv import dotenv_values
+# def load_env_file(env_file: Path) -> dict[str, str | None]:
+#     """Load environment variables from the specified .env file."""
+#     if not env_file.exists():
+#         logger.error(f'Environment file not found: {env_file}')
+#         raise typer.Exit(1)
+#
+#     env_vars = dotenv_values(env_file)
+#     logger.info(f'Loaded environment from: {env_file}')
+#     return env_vars
+
+
+def select_environment(
+    environment: Environment | None = None,
+    set_env: bool = True,
+    **select_enum_kwargs,
+) -> Environment:
+    """
+    Select an environment and load its `.env` file into `os.environ`.
+
+    This project used to rely on `python-dotenv` for this. We keep the behavior (populate
+    `os.environ`) without depending on `python-dotenv`.
+    """
+
+    from textual_searchable_selectionlist.options import SelectionStrategy
+    from textual_searchable_selectionlist.select import select_enum
+
+    if environment:
+        env = Environment(environment)
+    else:
+        try:
+            selected = select_enum(
+                Environment,
+                selection_strategy=SelectionStrategy.ONE,
+                title='Environment',
+                select_by='value',
+                **select_enum_kwargs,
+            )
+        except Exception as e:
+            logger.error(f'Error selecting environment: {type(e).__name__}: {e}')
+            raise typer.Exit(1)
+
+        if not selected:
+            logger.error('No environment selected.')
+            raise typer.Exit(1)
+
+        env = selected[0]
+
+    if set_env:
+        logger.debug(f'Setting environment [b]{env.value}[/b]')
+        env_values = read_env_file(env)
+        os.environ.update(env_values)
+    else:
+        logger.debug(f'Selected environment [b]{env.value}[/b]')
+
+    return env
 
 
 def get_os() -> OS:
@@ -122,7 +249,7 @@ def run(
     """
     final_args: list[str] = []
     for arg in args:
-        if not arg:
+        if arg in ['', None]:
             continue
         if arg == EMPTY_STR:
             final_args.append('')
@@ -158,6 +285,77 @@ def run(
         result.stderr = strip_output.strip(result.stderr)
 
     return result  # type: ignore
+
+
+def run_async(*args, dry: bool = False, **kwargs) -> subprocess.Popen | None:
+    """
+    Starts the process and continues code execution.
+
+    Use the following checks::
+
+        process.poll()              # Returns None if still running, else return code
+        process.wait()              # Wait for completion (blocking)
+        process.terminate()         # Send SIGTERM (graceful)
+        process.kill()              # Send SIGKILL (force)
+        process.returncode          # Access return code after completion
+
+    See ``subprocess.Popen(...)`` for more details.
+    """
+    logger.info(' '.join(map(str, args)))
+
+    if dry:
+        return None
+
+    defaults = dict(
+        cwd=PROJECT_ROOT,
+    )
+
+    try:
+        return subprocess.Popen(args, **(defaults | kwargs))
+    except subprocess.CalledProcessError as e:
+        logger.error(e)
+        raise typer.Exit(1)
+
+
+def is_package_installed(package_name: str) -> bool:
+    """Check if a Python package is installed."""
+    import importlib.util
+
+    if importlib.util.find_spec(package_name) is not None:
+        return True
+
+    try:
+        import importlib.metadata as metadata
+
+        metadata.version(package_name)
+        return True
+    except Exception:  # noqa
+        return False
+
+
+def install_package(
+    package: str,
+    package_install: str | None = None,
+    exit_if_install: bool = True,
+    dry: bool = False,
+):
+    """
+    Install a Python package if not already installed.
+
+    :param package: Name of the package to check/install.
+    :param package_install: Name of the package to install, if different from the name to check.
+    :param exit_if_install: Exit the program if the package is installed and `dry` is False.
+    :param dry: Show the command that would be run without running it.
+    """
+    if is_package_installed(package):
+        logger.debug(f'Package `{package}` is already installed.')
+        return
+
+    run(sys.executable, '-m', 'pip', 'install', package_install or package, dry=dry)
+
+    if exit_if_install and not dry:
+        logger.info(f'Package `{package}` installed successfully.\nRe-run the command.')
+        raise typer.Exit(1)
 
 
 def multiple_parameters(parameter: str, *options) -> list[str]:

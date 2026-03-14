@@ -42,7 +42,7 @@ class RequirementsType(StrEnum):
 
 REQUIREMENTS_TASK_HELP = {
     'requirements': '`.in` file. Full name not required, just the initial name after the dash '
-    f'(ex. "{Requirements.DEV.name}"). For main file use "{Requirements.MAIN.name}". '
+    f'(ex. "{Requirements.MAIN.name}"). For main file use "{Requirements.MAIN.name}". '
     f'Available requirements: {", ".join(Requirements)}.'
 }
 
@@ -149,23 +149,22 @@ def pip_package(
             'pip',
             'compile',
             *multiple_parameters('--upgrade-package', *package),
-            filename.name,
+            str(filename),
             '-o',
-            output_file.name,
+            str(output_file),
             dry=dry,
-            cwd=REQUIREMENTS_DIR,
         )
 
 
 @app.command(name='upgrade')
-def pip_upgrade(requirements: RequirementsAnnotation = None, dry: DryAnnotation = False):
+def pip_upgrade(requirements, dry: DryAnnotation = False):
     """
     Try to upgrade all dependencies to their latest versions.
 
     Equivalent to ``compile`` with ``--clean`` option.
 
     Use ``package`` to only upgrade individual packages,
-    Ex ``pip package dev mypy ruff``.
+    Ex ``pip package dev mypy flake8``.
     """
     for filename in _get_requirements_files(requirements, RequirementsType.IN):
         output_file = filename.with_suffix('.txt')
@@ -175,20 +174,19 @@ def pip_upgrade(requirements: RequirementsAnnotation = None, dry: DryAnnotation 
             'compile',
             '--no-strip-extras',
             '--upgrade',
-            filename.name,
+            str(filename),
             '-o',
-            output_file.name,
+            str(output_file),
             dry=dry,
-            cwd=REQUIREMENTS_DIR,
         )
 
 
 @app.command(name='install')
-def pip_install(requirements: RequirementsAnnotation = None, dry: DryAnnotation = False):
+def pip_install(requirements: RequirementsAnnotation, dry: DryAnnotation = False):
     """
     Equivalent to ``uv pip install -r <requirements*.txt>``.
     """
-    requirements_files = _get_requirements_files(requirements, RequirementsType.OUT)
+    requirements_files = _get_requirements_files(requirements, RequirementsType.OUT)  # type: ignore
     run('uv', 'pip', 'install', *multiple_parameters('-r', *requirements_files), dry=dry)
 
 
