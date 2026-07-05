@@ -8,10 +8,12 @@ from _pytest.mark.structures import MarkDecorator, ParameterSet
 # `_ScopeName` import fails at runtime on pytest 7.
 from packaging import version
 
-if version.parse(pytest.__version__) >= version.parse('8.0.0'):
-    from _pytest.scope import _ScopeName  # noqa
+if version.parse(pytest.__version__) >= version.parse('9.1.0'):
+    from pytest import ScopeName
+elif version.parse(pytest.__version__) >= version.parse('8.0.0'):
+    from _pytest.scope import _ScopeName as ScopeName  # noqa
 else:
-    _ScopeName: Type[str] = Literal['session', 'package', 'module', 'class', 'function']  # type: ignore # noqa
+    ScopeName: Type[str] = Literal['session', 'package', 'module', 'class', 'function']  # type: ignore # noqa
 # isort: on
 
 # `name_values` should have type `Iterable[tuple[str, ...]]`, which states the tuple has a string
@@ -24,7 +26,7 @@ def params(
     name_values: Iterable[tuple],  # Iterable[tuple[str, ...]]
     *,
     indirect: bool | Sequence[str] = False,
-    scope: _ScopeName | None = None,
+    scope: ScopeName | None = None,
 ) -> MarkDecorator:
     argvalues = params_values(*name_values)
     return pytest.mark.parametrize(argnames, argvalues, indirect=indirect, scope=scope)
