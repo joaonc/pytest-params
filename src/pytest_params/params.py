@@ -9,7 +9,7 @@ from _pytest.mark.structures import MarkDecorator, ParameterSet
 from packaging import version
 
 if version.parse(pytest.__version__) >= version.parse('9.1.0'):
-    from _pytest.scope import ScopeName
+    from pytest import ScopeName
 elif version.parse(pytest.__version__) >= version.parse('8.0.0'):
     from _pytest.scope import _ScopeName as ScopeName  # noqa
 else:
