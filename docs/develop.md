@@ -17,7 +17,6 @@ After syncing dependencies (which include `typer-invoke`), try the commands belo
   ```
   python -m admin.lint --help
   python -m admin.build --help
-  python -m admin.pip --help
   python -m admin.test --help
   ```
 * Help with a specific command
