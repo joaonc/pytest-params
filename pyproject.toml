@@ -71,7 +71,6 @@ dev = [
     'packaging',
     'pytest',
     'ruff',
-    'textual_searchable_selectionlist',
     'typer-invoke',
 ]
 
