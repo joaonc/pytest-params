@@ -207,31 +207,6 @@ def is_package_installed(package_name: str) -> bool:
         return False
 
 
-def install_package(
-    package: str,
-    package_install: str | None = None,
-    exit_if_install: bool = True,
-    dry: bool = False,
-):
-    """
-    Install a Python package if not already installed.
-
-    :param package: Name of the package to check/install.
-    :param package_install: Name of the package to install, if different from the name to check.
-    :param exit_if_install: Exit the program if the package is installed and `dry` is False.
-    :param dry: Show the command that would be run without running it.
-    """
-    if is_package_installed(package):
-        logger.debug(f'Package `{package}` is already installed.')
-        return
-
-    run(sys.executable, '-m', 'pip', 'install', package_install or package, dry=dry)
-
-    if exit_if_install and not dry:
-        logger.info(f'Package `{package}` installed successfully.\nRe-run the command.')
-        raise typer.Exit(1)
-
-
 def multiple_parameters(parameter: str, *options) -> list[str]:
     return list(chain.from_iterable(zip([parameter] * len(options), map(str, options))))
 
