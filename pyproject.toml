@@ -79,6 +79,5 @@ dev = [
 modules = [
     'admin.build',
     'admin.lint',
-    'admin.pip',
     'admin.test',
 ]
